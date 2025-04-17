@@ -39,6 +39,7 @@ Você pode acessar o site diretamente por aqui (se hospedado no GitHub Pages ou 
 - Bohrium
 - GitMind
 - Perplexity AI
+- Gemini
 
 ## 🚀 Como usar localmente
 
