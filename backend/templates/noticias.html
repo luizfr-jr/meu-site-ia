@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Notícias - Meu Site IA{% endblock %}
+
+{% block content %}
+  <style>
+    .noticias-container {
+      max-width: 900px;
+      margin: auto;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    textarea {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .noticia-card {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .noticia-card img {
+      width: 160px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .noticia-conteudo {
+      flex-grow: 1;
+    }
+
+    .noticia-conteudo h5 {
+      margin-bottom: 5px;
+    }
+
+    .noticia-conteudo p {
+      margin-bottom: 10px;
+      color: #444;
+    }
+
+    .noticia-conteudo small {
+      color: #888;
+    }
+
+    .noticia-conteudo a.btn-danger {
+      margin-top: 10px;
+      display: inline-block;
+    }
+  </style>
+
+  <div class="noticias-container">
+    <h1>📰 Gerenciar Notícias Curadas</h1>
+
+    <h2>Adicionar Nova Notícia</h2>
+    <form method="POST" action="/noticias" autocomplete="off" id="form-noticia">
+      <input type="url" name="url" id="url" placeholder="Cole o link da notícia (https://...)" required>
+      <button type="button" onclick="preencherNoticia()" id="btnPreencher">🔍 Preencher automaticamente</button>
+
+      <input type="text" name="title" id="title" placeholder="Título da notícia" required>
+      <textarea name="description" id="description" placeholder="Descrição breve" required></textarea>
+      <input type="text" name="source" id="source" placeholder="Fonte da notícia (ex: Exame, CNN Brasil)" required>
+      <input type="url" name="image" id="image" placeholder="Link da imagem da notícia (opcional)">
+      <button type="submit">Salvar Notícia</button>
+    </form>
+
+    <hr>
+    <h2>Notícias Cadastradas</h2>
+    {% if noticias %}
+      {% for noticia in noticias %}
+        <div class="noticia-card">
+          <img src="{{ noticia.image or '/frontend/img/noticia_padrao.jpg' }}" alt="Imagem">
+          <div class="noticia-conteudo">
+            <h5>{{ noticia.title }}</h5>
+            <p>{{ noticia.description }}</p>
+            <a href="{{ noticia.url }}" target="_blank">🔗 Acessar Notícia</a><br>
+            <small><strong>Fonte:</strong> {{ noticia.source }}</small><br>
+            <a href="/noticias/remover/{{ loop.index0 }}" class="btn btn-danger btn-sm mt-2">🗑️ Remover</a>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted text-center">Nenhuma notícia curada cadastrada ainda.</p>
+    {% endif %}
+  </div>
+
+  <script>
+    async function preencherNoticia() {
+      const url = document.getElementById('url').value;
+      if (!url) return alert('Cole um link válido!');
+      document.getElementById('btnPreencher').disabled = true;
+      try {
+        const resp = await fetch('/extrair_info_noticia', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error);
+
+        document.getElementById('title').value = data.title || '';
+        document.getElementById('description').value = data.description || '';
+        document.getElementById('image').value = data.image || '';
+        document.getElementById('source').value = data.source || '';
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao extrair dados. Verifique se o link é válido.');
+      } finally {
+        document.getElementById('btnPreencher').disabled = false;
+      }
+    }
+  </script>
+{% endblock %}

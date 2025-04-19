@@ -1,84 +1,75 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Usuário</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f5f7fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
+{% extends "base.html" %}
 
-        .cadastro-container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 400px;
-        }
+{% block title %}Cadastro de Novo Administrador{% endblock %}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+{% block content %}
+<style>
+  .cadastro-container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
 
-        button {
-            padding: 12px;
-            background: #007bff;
-            color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            font-size: 16px;
-        }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
 
-        button:hover {
-            background: #0056b3;
-        }
+  button {
+    padding: 12px;
+    background: #007bff;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 16px;
+  }
 
-        .mensagem {
-            text-align: center;
-            color: red;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="cadastro-container">
-        <h2>Cadastro de Novo Administrador</h2>
-        {% if erro %}<p class="mensagem">{{ erro }}</p>{% endif %}
-        {% if sucesso %}<p class="mensagem" style="color: green">{{ sucesso }}</p>{% endif %}
-        <form method="POST">
-            <input type="text" name="username" placeholder="Nome de usuário" required>
-            <input type="email" name="email" placeholder="E-mail" required>
-            <input type="password" name="password" placeholder="Senha" required>
-            <button type="submit">Cadastrar</button>
-        </form>
-    </div>
-</body>
-</html>
+  button:hover {
+    background: #0056b3;
+  }
+
+  .mensagem {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+  }
+</style>
+
+<div class="cadastro-container">
+  <h2>Cadastro de Novo Administrador</h2>
+  {% if erro %}
+    <p class="mensagem">{{ erro }}</p>
+  {% endif %}
+  {% if sucesso %}
+    <p class="mensagem" style="color: green">{{ sucesso }}</p>
+  {% endif %}
+  <form method="POST">
+    <input type="text" name="username" placeholder="Nome de usuário" required>
+    <input type="email" name="email" placeholder="E-mail" required>
+    <input type="password" name="password" placeholder="Senha" required>
+    <button type="submit">Cadastrar</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Home Inteligente - Meu Site IA{% endblock %}
+
+{% block content %}
+  <h1 class="text-center mb-4">🤖 Bem-vindo ao <strong>Meu Site IA</strong></h1>
+  <p class="text-center text-muted mb-5">💡 Explore, aprenda e transforme sua rotina com as melhores ferramentas de IA focadas na educação!</p>
+
+  <!-- IA Mais Usada da Semana -->
+  <section class="mb-5">
+    <h2>🔥 IA Mais Usada da Semana</h2>
+    <div class="card shadow-sm p-4">
+      <h3>{{ ia_mais_usada.nome }}</h3>
+      <p>{{ ia_mais_usada.descricao }}</p>
+      {% if ia_mais_usada.acessos_semana %}
+        <small class="text-muted">Acessos nesta semana: {{ ia_mais_usada.acessos_semana }}</small><br>
+      {% endif %}
+      <a href="{{ ia_mais_usada.link }}" class="btn btn-primary mt-3" target="_blank">Testar Agora</a>
+    </div>
+  </section>
+
+  <!-- Recomendação Inteligente -->
+  <section class="mb-5">
+    <h2>🎯 Recomendação Inteligente</h2>
+    <div class="card shadow-sm p-4">
+      <h3>{{ ia_recomendada.nome }}</h3>
+      <p>{{ ia_recomendada.descricao }}</p>
+      <a href="{{ ia_recomendada.link }}" class="btn btn-success mt-3" target="_blank">Experimente</a>
+    </div>
+  </section>
+
+  <!-- Top 5 Mais Acessadas -->
+  <section class="mb-5">
+    <h2>🏆 Top 5 Ferramentas Mais Acessadas</h2>
+    <ul class="list-group">
+      {% for ia in top_5 %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ loop.index }}. {{ ia.nome }}
+          <span class="badge bg-primary rounded-pill">{{ ia.acessos_totais }} acessos</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <!-- Ferramenta Aleatória -->
+  <section class="mb-5">
+    <h2>🎲 Me Surpreenda!</h2>
+    <div class="card shadow-sm p-4">
+      <h3>{{ ia_aleatoria.nome }}</h3>
+      <p>{{ ia_aleatoria.descricao }}</p>
+      <a href="{{ ia_aleatoria.link }}" class="btn btn-warning mt-3" target="_blank">Tentar Agora</a>
+    </div>
+  </section>
+
+  <!-- Notícias de IA na Educação -->
+  <section class="mb-5">
+    <h2>📰 Notícia do Dia</h2>
+    {% if noticia %}
+      <div class="card shadow-sm p-4">
+        {% if noticia.image %}
+          <img src="{{ noticia.image }}" alt="Imagem da notícia" class="img-fluid mb-3 rounded w-100" style="max-height: 250px; object-fit: cover;">
+        {% endif %}
+        <h4 class="mb-2">{{ noticia.title }}</h4>
+        <p class="mb-3">{{ noticia.description }}</p>
+        <a href="{{ noticia.url }}" target="_blank" class="btn btn-outline-primary">Ler na íntegra</a>
+        <p class="mt-3 text-muted"><small>Fonte: {{ noticia.source }}</small></p>
+      </div>
+    {% else %}
+      <div class="alert alert-warning text-center">
+        Nenhuma notícia disponível no momento. Tente novamente mais tarde.
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- Dica da Semana -->
+  <section class="mb-5">
+    <h2>✨ Dica da Semana</h2>
+    <div class="alert alert-info fs-5">
+      {{ dica }}
+    </div>
+  </section>
+{% endblock %}

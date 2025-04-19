@@ -1,0 +1,72 @@
+[
+  {
+    "title": "Como a inteligência artificial vai mudar o trabalho do professor?",
+    "description": "A IA oferece diversas possibilidades na educação, desde dar mais eficiência para os professores até auxiliar na compreensão dos alunos e no desenvolvimento de habilidades socioemocionais.",
+    "url": "https://www.cnnbrasil.com.br/educacao/como-a-inteligencia-artificial-vai-mudar-o-trabalho-do-professor/",
+    "source": "CNN Brasil",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "O Papel da IA na Educação 4.0: Transformando o Futuro da Aprendizagem",
+    "description": "A IA pode automatizar tarefas administrativas repetitivas, permitindo que os professores dediquem mais tempo à interação direta com os alunos e a métodos pedagógicos mais eficazes.",
+    "url": "https://exame.com/escola/exame-academy/o-papel-da-ia-na-educacao-4-0-transformando-o-futuro-da-aprendizagem/",
+    "source": "Exame",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "IA na educação: Tecnologia ‘pega’ entre alunos e professores",
+    "description": "Professores usam IA para corrigir trabalhos e criar planos de aula, enquanto alunos se apoiam em ferramentas como ChatGPT para tarefas acadêmicas.",
+    "url": "https://olhardigital.com.br/2023/08/10/educacao/ia-na-educacao-tecnologia-pega-entre-alunos-e-professores/",
+    "source": "Olhar Digital",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "Inteligência artificial revoluciona a forma de aprender",
+    "description": "Colégios estão adotando ferramentas de IA para personalizar os estudos, otimizar o ensino e preparar os alunos para um futuro digital.",
+    "url": "https://epocanegocios.globo.com/educacao/noticia/2023/09/ia-na-educacao-inteligencia-artificial-revoluciona-a-forma-de-aprender.html",
+    "source": "Época Negócios",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "Inteligência artificial ajuda o aluno a aprender? Veja o que escolas estão fazendo",
+    "description": "Ferramentas de IA estão transformando as tarefas escolares, estimulando professores a promoverem o pensamento crítico.",
+    "url": "https://educacao.estadao.com.br/noticias/geral,como-a-inteligencia-artificial-pode-ajudar-aluno-a-aprender-veja-o-que-escolas-estao-fazendo,70004372885",
+    "source": "Estadão",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "Como a inteligência artificial pode revolucionar a educação no Brasil",
+    "description": "A IA melhora os processos de aprendizagem e gestão educacional, transformando as práticas pedagógicas no país.",
+    "url": "https://exame.com/brasil/como-a-inteligencia-artificial-pode-revolucionar-a-educacao-no-brasil/",
+    "source": "Exame",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "Como a inteligência artificial está redirecionando a educação superior",
+    "description": "A revolução da IA está exigindo uma reformulação urgente das práticas pedagógicas e das diretrizes curriculares no ensino superior.",
+    "url": "https://www1.folha.uol.com.br/educacao/2023/10/inteligencia-artificial-esta-redirecionando-a-educacao-superior.shtml",
+    "source": "Folha de S.Paulo",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "Inteligência artificial impacta educação e mercado de trabalho",
+    "description": "Especialistas afirmam que a IA pode transformar a maneira como os alunos aprendem e os professores ensinam.",
+    "url": "https://www1.folha.uol.com.br/educacao/2023/09/inteligencia-artificial-impacta-educacao-e-mercado-de-trabalho.shtml",
+    "source": "Folha de S.Paulo",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "Inteligência artificial: escolas ensinam alunos a usar o ChatGPT",
+    "description": "Escolas estão incorporando o uso de IA em sala de aula, ensinando os alunos a utilizar ferramentas como o ChatGPT com responsabilidade.",
+    "url": "https://www.cnnbrasil.com.br/educacao/escolas-ensinam-alunos-a-usar-o-chatgpt-e-outras-ias-com-responsabilidade/",
+    "source": "CNN Brasil",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  },
+  {
+    "title": "Como a tecnologia está moldando o futuro das escolas",
+    "description": "Sistemas de IA analisam o desempenho dos alunos e adaptam o conteúdo às suas necessidades, promovendo um aprendizado mais eficaz.",
+    "url": "https://olhardigital.com.br/2023/07/15/educacao/como-a-tecnologia-esta-moldando-o-futuro-das-escolas/",
+    "source": "Olhar Digital",
+    "image": "/frontend/img/noticia_padrao.jpg"
+  }
+]

@@ -1,0 +1,9 @@
+
+{
+    "nome": "ChatGPT",
+    "descricao": "Modelo de linguagem da OpenAI para conversa em linguagem natural.",
+    "link": "https://chat.openai.com",
+    "imagem": "/frontend/img/chatgpt.png",
+    "acessos_totais": 152,
+    "acessos_semana": 12
+  }

@@ -1,22 +1,125 @@
 import os
 import json
 import logging
+from bs4 import BeautifulSoup
+import random
+from newspaper import Article
+import requests  # ✅ IMPORTANTE
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from config.settings import Config
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import smtplib
 from email.message import EmailMessage
 from openai import OpenAI
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io
+import base64
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+# ✅ Carregar variáveis do .env
+load_dotenv()
+
+NOTICIAS_CURADAS_JSON = "noticias_curadas.json"
+def extrair_info_da_url(link):
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        }
+        resposta = requests.get(link, headers=headers, timeout=10)
+        resposta.raise_for_status()
+
+        soup = BeautifulSoup(resposta.text, 'html.parser')
+
+        def meta(name):
+            return (
+                soup.find('meta', property=name) or
+                soup.find('meta', attrs={'name': name})
+            )
+
+        title = (meta("og:title") or meta("title"))
+        description = (meta("og:description") or meta("description"))
+        image = (meta("og:image") or meta("image"))
+
+        if title and description:
+            return {
+                "title": title.get("content", "Sem título"),
+                "description": description.get("content", "Sem descrição"),
+                "url": link,
+                "source": link.split("//")[-1].split("/")[0],
+                "image": image.get("content") if image else "/frontend/img/noticia_padrao.jpg"
+            }
+
+        article = Article(link)
+        article.download()
+        article.parse()
+
+        return {
+            "title": article.title,
+            "description": article.meta_description or article.text[:160],
+            "url": link,
+            "source": link.split("//")[-1].split("/")[0],
+            "image": article.top_image or "/frontend/img/noticia_padrao.jpg"
+        }
+
+    except Exception as e:
+        print(f"⚠️ Erro ao extrair info da URL: {e}")
+        return {"error": "Erro ao extrair dados. Verifique se o link é válido ou tente outro."}
+
+def carregar_noticias():
+    if os.path.exists(NOTICIAS_CURADAS_JSON):
+        with open(NOTICIAS_CURADAS_JSON, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+def salvar_noticias(lista):
+    with open(NOTICIAS_CURADAS_JSON, "w", encoding="utf-8") as f:
+        json.dump(lista, f, indent=2, ensure_ascii=False)
+
+
+
+def gerar_graficos(perguntas_populares, categorias_populares):
+    # Gráfico de barras
+    img1_base64 = ""
+    if perguntas_populares:
+        fig1, ax1 = plt.subplots()
+        perguntas, contagens = zip(*perguntas_populares)
+        ax1.bar(perguntas, contagens, color="#007bff")
+        ax1.set_title("Perguntas Mais Frequentes")
+        ax1.set_ylabel("Quantidade")
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        buf1 = io.BytesIO()
+        plt.savefig(buf1, format='png')
+        plt.close(fig1)
+        buf1.seek(0)
+        img1_base64 = base64.b64encode(buf1.getvalue()).decode('utf-8')
+
+    # Gráfico de pizza
+    img2_base64 = ""
+    if categorias_populares:
+        fig2, ax2 = plt.subplots()
+        categorias, valores = zip(*categorias_populares)
+        ax2.pie(valores, labels=categorias, autopct='%1.1f%%', startangle=140)
+        ax2.set_title("Categorias Mais Buscadas")
+        plt.tight_layout()
+        buf2 = io.BytesIO()
+        plt.savefig(buf2, format='png')
+        plt.close(fig2)
+        buf2.seek(0)
+        img2_base64 = base64.b64encode(buf2.getvalue()).decode('utf-8')
+
+    return img1_base64, img2_base64
 
 # Carrega variáveis de ambiente
-load_dotenv()
 api_key = os.getenv("OPENROUTER_API_KEY")
 print("🔑 OPENROUTER_API_KEY:", api_key)
 
@@ -70,6 +173,37 @@ def salvar_busca(pergunta, categoria):
         f.truncate()
         json.dump(historico, f, indent=2)
 
+def buscar_noticia_curada():
+    try:
+        if os.path.exists(NOTICIAS_CURADAS_JSON):
+            with open(NOTICIAS_CURADAS_JSON, encoding="utf-8") as f:
+                lista = json.load(f)
+                if lista:
+                    return random.choice(lista)
+    except Exception as e:
+        print(f"Erro ao carregar notícia curada: {e}")
+
+    # Fallback padrão
+    return {
+        "title": "IA transforma escolas públicas com tutores personalizados",
+        "description": "Uma nova ferramenta de IA está auxiliando professores no acompanhamento individualizado dos alunos em escolas públicas do Brasil.",
+        "url": "https://example.com/noticia-sobre-ia-na-educacao",
+        "source": "Educação Brasil",
+        "image": "/frontend/img/noticia_padrao.jpg"
+    }
+
+def registrar_acesso_ia(nome_ia):
+    caminho = 'logs/acessos_semana.json'
+    if not os.path.exists(caminho):
+        with open(caminho, 'w') as f:
+            json.dump({}, f)
+    with open(caminho, 'r+') as f:
+        acessos = json.load(f)
+        acessos[nome_ia] = acessos.get(nome_ia, 0) + 1
+        f.seek(0)
+        f.truncate()
+        json.dump(acessos, f, indent=2)
+
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -78,6 +212,7 @@ class Admin(db.Model):
 
 SUPER_ADMINS = ['admin', 'luiz']
 
+
 @app.route('/')
 def pagina_publica():
     registrar_acesso_publico(request.remote_addr)
@@ -85,7 +220,8 @@ def pagina_publica():
 
 @app.route('/ferramentas')
 def ferramentas():
-    return send_from_directory('../frontend', 'index.html')
+    registrar_acesso_publico(request.remote_addr)
+    return render_template("ferramentas.html")
 
 @app.route('/frontend/<path:filename>')
 def frontend_static(filename):
@@ -225,14 +361,18 @@ def gerenciar_usuarios():
     perguntas_populares = sorted(busca_contagem.items(), key=lambda x: x[1], reverse=True)[:10]
     categorias_populares = sorted(categoria_contagem.items(), key=lambda x: x[1], reverse=True)[:10]
 
+    img1_base64, img2_base64 = gerar_graficos(perguntas_populares[:5], categorias_populares[:5])
+
     return render_template(
-    'usuarios.html',
-    admins=admins,
-    logs=logs[::-1],
-    total_index=total_index,
-    unique_index_ips=unique_index_ips,
-    perguntas_populares=perguntas_populares,
-    categorias_populares=categorias_populares
+        "usuarios.html",
+        admins=admins,
+        logs=logs[::-1],
+        total_index=total_index,
+        unique_index_ips=unique_index_ips,
+        perguntas_populares=perguntas_populares,
+        categorias_populares=categorias_populares,
+        grafico_barras=img1_base64,
+        grafico_pizza=img2_base64
     )
 
 @app.route('/excluir_usuario/<int:user_id>')
@@ -383,10 +523,157 @@ def api():
     with open(app.config['DATABASE_FILE']) as f:
         return jsonify(json.load(f))
 
+
+@app.route("/noticias", methods=["GET", "POST"])
+def gerenciar_noticias():
+    if "user" not in session or session["user"] not in SUPER_ADMINS:
+        return redirect(url_for("login"))
+
+    noticias = carregar_noticias()
+
+    if request.method == "POST":
+        nova = {
+            "title": request.form["title"],
+            "description": request.form["description"],
+            "url": request.form["url"],
+            "source": request.form["source"],
+            "image": request.form.get("image") or "/frontend/img/noticia_padrao.jpg"
+        }
+        noticias.insert(0, nova)
+        salvar_noticias(noticias)
+        return redirect(url_for("gerenciar_noticias"))
+
+    return render_template("noticias.html", noticias=noticias)
+
+
+@app.route("/noticias/remover/<int:index>")
+def remover_noticia(index):
+    if "user" not in session or session["user"] not in SUPER_ADMINS:
+        return redirect(url_for("login"))
+
+    noticias = carregar_noticias()
+    if 0 <= index < len(noticias):
+        noticias.pop(index)
+        salvar_noticias(noticias)
+    return redirect(url_for("gerenciar_noticias"))
+
+
+@app.route("/extrair_info_noticia", methods=["POST"])
+def extrair_info_noticia():
+    url = request.json.get("url")
+    if not url:
+        return jsonify({"error": "URL não fornecida"}), 400
+
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0"
+        }
+        resposta = requests.get(url, headers=headers, timeout=10)
+        resposta.raise_for_status()
+        soup = BeautifulSoup(resposta.text, "html.parser")
+
+        def meta(name):
+            return (
+                soup.find("meta", property=name) or
+                soup.find("meta", attrs={"name": name})
+            )
+
+        title = (meta("og:title") or meta("title"))
+        description = (meta("og:description") or meta("description"))
+        image = (meta("og:image") or meta("image"))
+
+        if title and description:
+            return jsonify({
+                "title": title.get("content", ""),
+                "description": description.get("content", ""),
+                "image": image.get("content", "") if image else ""
+            })
+
+        # Fallback com newspaper3k
+        artigo = Article(url)
+        artigo.download()
+        artigo.parse()
+
+        return jsonify({
+            "title": artigo.title,
+            "description": artigo.meta_description or artigo.text[:180],
+            "image": artigo.top_image
+        })
+
+    except Exception as e:
+        print(f"Erro ao extrair dados: {e}")
+        return jsonify({"error": "Erro ao extrair dados. Verifique se o link é válido."}), 500
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+@app.route('/como-usar')
+def como_usar():
+    return render_template('como_usar.html')
+
+@app.route('/sobre')
+def sobre():
+    return render_template('sobre.html')
+
+
+# ✅ Rota principal da home
+@app.route("/home-inteligente")
+def home_inteligente():
+    try:
+        with open(app.config['DATABASE_FILE']) as f:
+            ferramentas = json.load(f)
+    except Exception as e:
+        ferramentas = []
+        print(f"Erro ao carregar ferramentas: {e}")
+
+    try:
+        with open('logs/acessos_semana.json') as f:
+            acessos_semana = json.load(f)
+    except Exception:
+        acessos_semana = {}
+
+    nome_top = max(acessos_semana, key=acessos_semana.get) if acessos_semana else None
+    ia_mais_usada = next((f for f in ferramentas if f['nome'] == nome_top), {}) if nome_top else {}
+
+    top_5 = sorted(ferramentas, key=lambda x: x.get("acessos_totais", 0), reverse=True)[:5]
+    ia_aleatoria = random.choice(ferramentas) if ferramentas else {}
+    ia_recomendada = random.choice(ferramentas) if ferramentas else {}
+
+    dicas = [
+        "Você sabia que pode automatizar posts no Instagram com IA?",
+        "Use IAs para gerar resumos de textos em segundos!",
+        "A IA pode criar apresentações de slides inteiras com base num texto.",
+        "Você pode criar imagens a partir de descrições usando IA de texto para imagem!",
+        "Use IA para gerar contratos, currículos e propostas em segundos!"
+    ]
+    dica = random.choice(dicas)
+
+    noticia = buscar_noticia_curada()  # ✅ aqui você chama a função nova
+
+    casos_reais = [
+        {
+            "titulo": "Estudantes do IFPR usam IA para monitorar aprendizado",
+            "descricao": "O projeto utiliza análise de dados de desempenho e recomendações automatizadas para auxiliar alunos com dificuldades.",
+            "link": "https://example.com/ia-ifpr"
+        },
+        {
+            "titulo": "Professora do ensino básico cria plano de aula com ChatGPT",
+            "descricao": "A ferramenta ajudou na criação de um cronograma adaptativo para alunos com deficiência auditiva.",
+            "link": "https://example.com/chatgpt-escola"
+        }
+    ]
+
+    return render_template("home_inteligente.html",
+                           ia_mais_usada=ia_mais_usada,
+                           top_5=top_5,
+                           ia_aleatoria=ia_aleatoria,
+                           ia_recomendada=ia_recomendada,
+                           dica=dica,
+                           noticia=noticia,
+                           casos_reais=casos_reais)
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

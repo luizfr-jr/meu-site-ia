@@ -3,27 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Links de IAs para Alunos</title>
-  <link rel="stylesheet" href="/frontend/style.css" />
+  <title>Ferramentas de IA - Meu Site IA</title>
   <link rel="icon" type="image/x-icon" href="/frontend/img/favicon.png" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .nav-links a {
+      margin-left: 15px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border: 1px solid transparent;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: white;
+      color: #007bff;
+    }
+
     .search-container {
-      margin: 20px auto;
+      margin: 30px auto;
       display: flex;
       justify-content: center;
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .search-container input,
     .search-container select {
       padding: 10px;
       border-radius: 20px;
       border: 1px solid #ccc;
     }
+
     .search-container input {
       width: 300px;
     }
+
     .search-container button {
       padding: 10px 20px;
       border-radius: 20px;
@@ -32,7 +74,9 @@
       color: white;
       cursor: pointer;
       transition: 0.3s;
+      font-weight: bold;
     }
+
     .search-container button:hover {
       background-color: #0056b3;
     }
@@ -43,6 +87,7 @@
       gap: 25px;
       padding: 20px;
     }
+
     .card {
       background: white;
       border-radius: 10px;
@@ -50,15 +95,18 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       text-align: center;
     }
+
     .card.destaque {
       border: 2px solid #007bff;
       box-shadow: 0 0 20px rgba(0,123,255,0.4);
     }
+
     .card img {
       width: 100px;
       height: 100px;
       object-fit: contain;
     }
+
     .botao {
       display: inline-block;
       padding: 10px 20px;
@@ -68,9 +116,11 @@
       text-decoration: none;
       margin-top: 10px;
     }
+
     .botao:hover {
       background: #0056b3;
     }
+
     .explicacao {
       font-size: 14px;
       color: #444;
@@ -79,62 +129,37 @@
       text-align: justify;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #007bff;
-      color: white;
-      padding: 20px;
-      flex-wrap: wrap;
-    }
-    .top-bar h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-    .admin-button {
-      background: white;
-      color: #007bff;
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .admin-button:hover {
-      background: #0056b3;
-      color: white;
-    }
-
     footer {
       background: #f1f1f1;
       padding: 20px;
       margin-top: 40px;
     }
+
     .footer-content {
       text-align: center;
     }
+
     .social-icons a {
       color: #007bff;
       margin: 0 10px;
       font-size: 20px;
     }
-    .linha-horizontal {
-      height: 1px;
-      background: #ccc;
-      margin: 10px auto;
-      width: 80%;
-    }
   </style>
 </head>
 <body>
-  <header class="top-bar">
-    <h1>Ferramentas de IA para Estudos</h1>
-    <a class="admin-button" href="/login">Acesso Administrativo</a>
+
+  <!-- HEADER UNIFICADO -->
+  <header>
+    <h1>🤖 Meu Site IA</h1>
+    <div class="nav-links">
+      <a href="/home-inteligente">🏠 Início</a>
+      <a href="/ferramentas">🧰 Ferramentas</a>
+      <a href="/sobre">🔎 Sobre</a>
+      <a href="/login">🔐 Admin</a>
+    </div>
   </header>
 
-  <div class="linha-horizontal"></div>
-
+  <!-- BUSCA -->
   <div class="search-container">
     <input type="text" id="busca-input" placeholder="O que você quer fazer com IA?" />
     <select id="categoria-select">
@@ -150,10 +175,10 @@
     <button onclick="buscarIA()">Buscar IA Ideal</button>
   </div>
 
-  <div class="cards-container" id="cards-container">
-    <!-- Cards inseridos dinamicamente -->
-  </div>
+  <!-- CARDS -->
+  <div class="cards-container" id="cards-container"></div>
 
+  <!-- RODAPÉ -->
   <footer>
     <div class="footer-content">
       <div class="social-icons">
@@ -162,12 +187,13 @@
         <a href="https://www.instagram.com/luizfr_jr/" target="_blank"><i class="fab fa-instagram"></i></a>
         <a href="https://www.tiktok.com/@luizfr.jr" target="_blank"><i class="fab fa-tiktok"></i></a>
       </div>
-      <p>Criado por Prof. Dr. Luiz Fernando Rodrigues Junior • Contato: 
+      <p>Criado por Prof. Dr. Luiz Fernando Rodrigues Junior • Contato:
         <a href="mailto:luiz.fernando@ufn.edu.br">luiz.fernando@ufn.edu.br</a></p>
       <p>© 2025 Todos os direitos reservados.</p>
     </div>
   </footer>
 
+  <!-- SCRIPT -->
   <script>
     console.log("🧪 Script carregado com sucesso!");
 
@@ -221,7 +247,6 @@
               container.appendChild(renderCard(tool, index === 0));
             });
           } else {
-            console.log(`🔸 Única ferramenta: ${tools.nome}`);
             container.appendChild(renderCard(tools, true));
           }
         })
