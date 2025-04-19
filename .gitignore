@@ -1,0 +1,46 @@
+# Ambiente virtual
+venv/
+.venv/
+
+# Arquivos de configuração locais
+.env
+*.env
+
+# Arquivos do sistema
+__pycache__/
+*.py[cod]
+*.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Banco de dados e arquivos de instância
+*.sqlite3
+*.db
+instance/
+site.db
+
+# Uploads de imagens (mantém apenas imagens do frontend fixas)
+backend/static/uploads/
+
+# Cache
+.cache/
+*.egg-info/
+dist/
+build/
+
+# Pytest
+htmlcov/
+.coverage
+.tox/
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Node (caso tenha frontend com Node)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

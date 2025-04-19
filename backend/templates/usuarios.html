@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão de Usuários e Logs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .actions {
+      text-align: right;
+    }
+
+    .delete-button {
+      color: #e74c3c;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .delete-button:hover {
+      text-decoration: underline;
+    }
+
+    pre {
+      background: #000;
+      color: #00ff99;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      max-height: 400px;
+      font-size: 14px;
+    }
+
+    .metricas {
+      margin: 40px 0;
+    }
+
+    .metricas h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #333;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 8px;
+    }
+
+    .metricas p {
+      font-size: 16px;
+      margin: 8px 0;
+      text-align: center;
+    }
+
+    .lista-metricas {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 0 20px;
+      list-style: none;
+    }
+
+    .lista-metricas li {
+      background: #f0f4ff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .voltar {
+      display: block;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .voltar a {
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .voltar a:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gestão de Usuários</h1>
+
+    {% if admins|length == 0 %}
+      <p style="text-align:center;">Nenhum usuário cadastrado ainda.</p>
+    {% else %}
+      <table>
+        <thead>
+          <tr>
+            <th>Nome de Usuário</th>
+            <th>Email</th>
+            <th class="actions">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for admin in admins %}
+            <tr>
+              <td>{{ admin.username }}</td>
+              <td>{{ admin.email }}</td>
+              <td class="actions">
+                {% if admin.username not in ['admin', 'luiz'] %}
+                  <a href="{{ url_for('excluir_usuario', user_id=admin.id) }}" class="delete-button" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">❌</a>
+                {% else %}
+                  <span style="color: #ccc;">Protegido</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    <div class="metricas">
+      <h2>📈 Métricas de Acesso ao Site</h2>
+      <p>Acessos totais: <strong>{{ total_index }}</strong></p>
+      <p>IPs únicos: <strong>{{ unique_index_ips }}</strong></p>
+    </div>
+
+    <div class="metricas">
+      <h2>🔍 Perguntas Mais Frequentes</h2>
+      <ul class="lista-metricas">
+        {% for pergunta, count in perguntas_populares[:5] %}
+          <li>
+            <span>{{ pergunta }}</span>
+            <span>{{ count }}x</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <p>📊 Média de buscas por pergunta: <strong>{{
+        (perguntas_populares | map(attribute=1) | sum) // (perguntas_populares | length if perguntas_populares|length > 0 else 1)
+      }}</strong></p>
+    </div>
+
+    <div class="metricas">
+      <h2>📚 Categorias Mais Buscadas</h2>
+      <ul class="lista-metricas">
+        {% for categoria, count in categorias_populares[:5] %}
+          <li>
+            <span>{{ categoria }}</span>
+            <span>{{ count }}x</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <h2 style="text-align: center;">🔐 Logs de Segurança</h2>
+    <pre>
+{% for linha in logs %}
+{{ linha.strip() }}
+{% endfor %}
+    </pre>
+
+    <div class="voltar">
+      <a href="{{ url_for('dashboard') }}">← Voltar ao Painel</a>
+    </div>
+  </div>
+</body>
+</html>

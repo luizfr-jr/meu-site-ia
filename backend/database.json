@@ -1,0 +1,98 @@
+[
+    {
+        "nome": "ChatGPT",
+        "descricao": "IA de conversa\u00e7\u00e3o para d\u00favidas, reda\u00e7\u00e3o e ideias.",
+        "link": "https://chat.openai.com",
+        "imagem": "/frontend/img/chatgpt.jpg"
+    },
+    {
+        "nome": "Leonardo",
+        "descricao": "Gere imagens criativas a partir de descri\u00e7\u00f5es textuais.",
+        "link": "https://leonardo.ai/",
+        "imagem": "/frontend/img/leonardo.png"
+    },
+    {
+        "nome": "SciSpace",
+        "descricao": "IA para busca de artigos e intera\u00e7\u00e3o de leituras e partes de cada artigo.",
+        "link": "https://scispace.com/",
+        "imagem": "/frontend/img/scispace.jpg"
+    },
+    {
+        "nome": "DeepSeek",
+        "descricao": "IA de conversa\u00e7\u00e3o para d\u00favidas, reda\u00e7\u00e3o e ideias.",
+        "link": "https://chat.deepseek.com/",
+        "imagem": "/frontend/img/deepseek.png"
+    },
+    {
+        "nome": "NoteBookLM",
+        "descricao": "Assistente de pesquisa e anota\u00e7\u00f5es inteligente.",
+        "link": "https://notebooklm.google.com/",
+        "imagem": "/frontend/img/NoteBookLM.jpg"
+    },
+    {
+        "nome": "Elcit",
+        "descricao": "Assistente de pesquisa que automatiza revis\u00f5es sistem\u00e1ticas e extra\u00e7\u00e3o de dados.",
+        "link": "https://elicit.com/",
+        "imagem": "/frontend/img/elicit.jpg"
+    },
+    {
+        "nome": "Consensus",
+        "descricao": "IA para busca de artigos e intera\u00e7\u00e3o de leituras e partes de cada artigo.",
+        "link": "https://consensus.app/search/",
+        "imagem": "/frontend/img/consensus.png"
+    },
+    {
+        "nome": "DeepL",
+        "descricao": "IA para tradua\u00e7\u00e3o e escrita em diversas l\u00ednguas.",
+        "link": "https://www.deepl.com/pt-BR/translator",
+        "imagem": "/frontend/img/deepl.jpg"
+    },
+    {
+        "nome": "Napkin",
+        "descricao": "Ferramenta que transforma texto em diagramas automaticamente.",
+        "link": "https://app.napkin.ai/page/create",
+        "imagem": "/frontend/img/napkin.jpg"
+    },
+    {
+        "nome": "Heur\u00edstica",
+        "descricao": "Facilita a aprendizagem visual e investiga\u00e7\u00e3o por meio de mapas conceptuais e mentais.",
+        "link": "https://www.heuristi.ca/",
+        "imagem": "/frontend/img/heuristica.png"
+    },
+    {
+        "nome": "CopiLot",
+        "descricao": "IA de conversa\u00e7\u00e3o para d\u00favidas, reda\u00e7\u00e3o e ideias.",
+        "link": "https://copilot.microsoft.com",
+        "imagem": "/frontend/img/copilot.jpg"
+    },
+    {
+        "nome": "Qwen",
+        "descricao": "IA de conversa\u00e7\u00e3o para d\u00favidas, reda\u00e7\u00e3o e ideias.",
+        "link": "https://chat.qwen.ai/",
+        "imagem": "/frontend/img/qwen.jpg"
+    },
+    {
+        "nome": "Bohrium",
+        "descricao": "Plataforma que utiliza intelig\u00eancia artificial para acelerar descobertas cient\u00edficas.",
+        "link": "https://www.bohrium.com/home",
+        "imagem": "/frontend/img/bohrium.png"
+    },
+    {
+        "nome": "GitMind",
+        "descricao": "Crie mapas mentais, fluxogramas e organogramas com colabora\u00e7\u00e3o em tempo real.",
+        "link": "https://gitmind.com/app/recents",
+        "imagem": "/frontend/img/gitmind.png"
+    },
+    {
+        "nome": "Perplexity",
+        "descricao": "Ferramenta de busca com respostas baseadas em IA, com fontes confi\u00e1veis e contextualiza\u00e7\u00e3o.",
+        "link": "https://www.perplexity.ai/",
+        "imagem": "/frontend/img/perplexity.png"
+    },
+    {
+        "nome": "Gemini",
+        "descricao": "IA generativa do Google que responde perguntas, cria conte\u00fados e auxilia nos estudos.",
+        "link": "https://gemini.google.com/",
+        "imagem": "/frontend/img/gemini.png"
+    }
+]

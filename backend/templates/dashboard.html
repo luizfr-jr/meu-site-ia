@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: #f5f7fa;
+            color: #333;
+            text-align: center;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .painel-container {
+            max-width: 800px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        input[type="file"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .lista {
+            margin-top: 40px;
+        }
+
+        .card {
+            background: #f0f2f5;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card span {
+            font-weight: 600;
+        }
+
+        .card a {
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .card a[title="Editar"] {
+            color: #2ecc71;
+            margin-right: 12px;
+        }
+
+        .card a[title="Remover"] {
+            color: #e74c3c;
+        }
+
+        .logout {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .logout:hover {
+            text-decoration: underline;
+        }
+
+        .botao {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .botao:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="painel-container">
+        <h1>Painel Administrativo</h1>
+
+        {% if ferramenta %}
+        <h2>Editando: {{ ferramenta.nome }}</h2>
+        <form method="POST" action="/editar/{{ id }}" enctype="multipart/form-data">
+            <input type="text" name="nome" placeholder="Nome da ferramenta" value="{{ ferramenta.nome }}" required>
+            <textarea name="descricao" placeholder="Descrição" required>{{ ferramenta.descricao }}</textarea>
+            <input type="url" name="link" placeholder="Link (https://...)" value="{{ ferramenta.link }}" required>
+            <input type="file" name="imagem">
+            <button type="submit">Salvar Alterações</button>
+        </form>
+        <hr>
+        {% else %}
+        <h2>Adicionar Nova Ferramenta</h2>
+        <form method="POST" action="/adicionar" enctype="multipart/form-data">
+            <input type="text" name="nome" placeholder="Nome da ferramenta" required>
+            <textarea name="descricao" placeholder="Descrição" required></textarea>
+            <input type="url" name="link" placeholder="Link (https://...)" required>
+            <input type="file" name="imagem" required>
+            <button type="submit">Adicionar IA</button>
+        </form>
+        {% endif %}
+
+        <div class="lista">
+            <h2>Ferramentas já cadastradas</h2>
+            {% for f in ferramentas %}
+            <div class="card">
+                <span>{{ f.nome }}</span>
+                <div>
+                    <a href="/editar/{{ loop.index0 }}" title="Editar">✏️</a>
+                    <a href="/remover/{{ loop.index0 }}" title="Remover">❌</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <a class="logout" href="/logout">Sair do Painel</a>
+
+        <div style="margin-top: 30px;">
+            <a href="/ferramentas" class="botao">🔙 Voltar para Ferramentas</a>
+            {% if session['user'] in ['admin', 'luiz'] %}
+                <br><br>
+                <a href="/usuarios" class="botao">👥 Gerenciar Usuários</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

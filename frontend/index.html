@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Links de IAs para Alunos</title>
+  <link rel="stylesheet" href="/frontend/style.css" />
+  <link rel="icon" type="image/x-icon" href="/frontend/img/favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    .search-container {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-container input,
+    .search-container select {
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+    }
+    .search-container input {
+      width: 300px;
+    }
+    .search-container button {
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .search-container button:hover {
+      background-color: #0056b3;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .card.destaque {
+      border: 2px solid #007bff;
+      box-shadow: 0 0 20px rgba(0,123,255,0.4);
+    }
+    .card img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+    .botao {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border-radius: 20px;
+      text-decoration: none;
+      margin-top: 10px;
+    }
+    .botao:hover {
+      background: #0056b3;
+    }
+    .explicacao {
+      font-size: 14px;
+      color: #444;
+      margin-top: 12px;
+      font-style: italic;
+      text-align: justify;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #007bff;
+      color: white;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+    .top-bar h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .admin-button {
+      background: white;
+      color: #007bff;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .admin-button:hover {
+      background: #0056b3;
+      color: white;
+    }
+
+    footer {
+      background: #f1f1f1;
+      padding: 20px;
+      margin-top: 40px;
+    }
+    .footer-content {
+      text-align: center;
+    }
+    .social-icons a {
+      color: #007bff;
+      margin: 0 10px;
+      font-size: 20px;
+    }
+    .linha-horizontal {
+      height: 1px;
+      background: #ccc;
+      margin: 10px auto;
+      width: 80%;
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <h1>Ferramentas de IA para Estudos</h1>
+    <a class="admin-button" href="/login">Acesso Administrativo</a>
+  </header>
+
+  <div class="linha-horizontal"></div>
+
+  <div class="search-container">
+    <input type="text" id="busca-input" placeholder="O que você quer fazer com IA?" />
+    <select id="categoria-select">
+      <option value="">Todas as Categorias</option>
+      <option value="texto">Texto</option>
+      <option value="imagem">Imagem</option>
+      <option value="pesquisa">Pesquisa</option>
+      <option value="tradução">Tradução</option>
+      <option value="educação">Educação</option>
+      <option value="mapa mental">Mapa Mental</option>
+      <option value="assistente">Assistente</option>
+    </select>
+    <button onclick="buscarIA()">Buscar IA Ideal</button>
+  </div>
+
+  <div class="cards-container" id="cards-container">
+    <!-- Cards inseridos dinamicamente -->
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="social-icons">
+        <a href="https://github.com/luizfr-jr" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/luiz-fernando-rodrigues-j%C3%BAnior-65667938/" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://www.instagram.com/luizfr_jr/" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/@luizfr.jr" target="_blank"><i class="fab fa-tiktok"></i></a>
+      </div>
+      <p>Criado por Prof. Dr. Luiz Fernando Rodrigues Junior • Contato: 
+        <a href="mailto:luiz.fernando@ufn.edu.br">luiz.fernando@ufn.edu.br</a></p>
+      <p>© 2025 Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script>
+    console.log("🧪 Script carregado com sucesso!");
+
+    function renderCard(tool, isDestaque = false) {
+      const card = document.createElement('div');
+      card.className = isDestaque ? 'card destaque' : 'card';
+      card.innerHTML = `
+        <img src="${tool.imagem}" alt="${tool.nome}">
+        <h2>${tool.nome}</h2>
+        <p>${tool.descricao}</p>
+        ${tool.explicacao ? `<p class="explicacao">${tool.explicacao}</p>` : ''}
+        <a href="${tool.link}" target="_blank" class="botao">Acessar</a>
+      `;
+      return card;
+    }
+
+    function carregarTodas() {
+      console.log("📦 Carregando todas as ferramentas");
+      fetch('/api/ferramentas')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('cards-container');
+          container.innerHTML = '';
+          data.forEach(tool => container.appendChild(renderCard(tool)));
+        });
+    }
+
+    function buscarIA() {
+      const pergunta = document.getElementById('busca-input').value.trim();
+      const categoria = document.getElementById('categoria-select').value.trim();
+      const container = document.getElementById('cards-container');
+
+      console.log("🔍 Buscando IA para:", pergunta, "Categoria:", categoria);
+
+      container.innerHTML = '<p><strong>Carregando IA...</strong></p>';
+
+      if (!pergunta && !categoria) return carregarTodas();
+
+      fetch('/buscar_ia_local', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pergunta, categoria })
+      })
+        .then(res => res.json())
+        .then(tools => {
+          console.log("✅ Resposta recebida:", tools);
+          container.innerHTML = '';
+          if (Array.isArray(tools)) {
+            tools.forEach((tool, index) => {
+              console.log(`🔹 ${tool.nome}: ${tool.explicacao}`);
+              container.appendChild(renderCard(tool, index === 0));
+            });
+          } else {
+            console.log(`🔸 Única ferramenta: ${tools.nome}`);
+            container.appendChild(renderCard(tools, true));
+          }
+        })
+        .catch(err => {
+          console.error('❌ Erro ao buscar IA:', err);
+          alert('Erro ao buscar IA.');
+          carregarTodas();
+        });
+    }
+
+    carregarTodas();
+  </script>
+</body>
+</html>
