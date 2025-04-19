@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Painel do Usuário - Meu Site IA{% endblock %}
+
+{% block content %}
+  <style>
+    .painel-user {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .painel-user h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .info-box {
+      background: #f7f9fc;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .info-box h5 {
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: #333;
+    }
+
+    .painel-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .painel-actions a {
+      display: inline-block;
+      background: #007bff;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .painel-actions a:hover {
+      background: #0056b3;
+    }
+
+    .sair {
+      display: block;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .sair a {
+      color: #dc3545;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sair a:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  <div class="painel-user">
+    <h2>👤 Olá, {{ usuario.nome.split(' ')[0] }}!</h2>
+
+    <div class="info-box">
+      <h5>📧 Seu e-mail</h5>
+      <p>{{ usuario.email }}</p>
+    </div>
+
+    <div class="painel-actions">
+      <a href="/ferramentas">🔍 Explorar Ferramentas</a>
+      <a href="/como-usar">📘 Ver Tutorial</a>
+      <a href="/favoritos">❤️ Ver Favoritos</a>
+      <a href="/perfil">⚙️ Editar Perfil</a>
+    </div>
+
+    <div class="sair">
+      <a href="/logout-user">🚪 Sair da Conta</a>
+    </div>
+  </div>
+{% endblock %}

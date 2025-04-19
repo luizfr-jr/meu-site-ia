@@ -23,7 +23,10 @@ import io
 import base64
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from flask import flash
+from werkzeug.security import generate_password_hash, check_password_hash
 
+USUARIOS_FILE = "usuarios.json"
 
 # ✅ Carregar variáveis do .env
 load_dotenv()
@@ -84,7 +87,17 @@ def salvar_noticias(lista):
     with open(NOTICIAS_CURADAS_JSON, "w", encoding="utf-8") as f:
         json.dump(lista, f, indent=2, ensure_ascii=False)
 
+import requests
 
+def obter_localizacao_por_ip(ip):
+    try:
+        response = requests.get(f"https://ipinfo.io/{ip}/json")
+        data = response.json()
+        cidade = data.get("city", "")
+        estado = data.get("region", "")
+        return cidade, estado
+    except Exception:
+        return None, None
 
 def gerar_graficos(perguntas_populares, categorias_populares):
     # Gráfico de barras
@@ -140,7 +153,16 @@ modelo_ia = SentenceTransformer('all-MiniLM-L6-v2')
 # Logging
 if not os.path.exists('logs'):
     os.makedirs('logs')
-logging.basicConfig(filename='logs/app_security.log', level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+
+from logging.handlers import TimedRotatingFileHandler
+
+log_handler = TimedRotatingFileHandler("logs/app_security.log", when="midnight", interval=1, backupCount=7, encoding='utf-8')
+log_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
+log_handler.setLevel(logging.INFO)
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(log_handler)
 
 ACCESS_LOG_FILE = 'logs/index_access.json'
 BUSCA_LOG_FILE = 'logs/buscas.json'
@@ -212,6 +234,20 @@ class Admin(db.Model):
 
 SUPER_ADMINS = ['admin', 'luiz']
 
+class Usuario(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    senha = db.Column(db.String(200), nullable=False)
+    data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
+    ultimo_login = db.Column(db.DateTime)
+    acessos_total = db.Column(db.Integer, default=0)
+    cidade = db.Column(db.String(100))
+    estado = db.Column(db.String(100))
+    navegador = db.Column(db.String(200))
+    dispositivo = db.Column(db.String(100))
+
+
 
 @app.route('/')
 def pagina_publica():
@@ -222,6 +258,71 @@ def pagina_publica():
 def ferramentas():
     registrar_acesso_publico(request.remote_addr)
     return render_template("ferramentas.html")
+
+@app.route("/registrar", methods=["GET", "POST"])
+def registrar():
+    if request.method == "POST":
+        nome = request.form.get("nome", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        senha = request.form.get("senha")
+        confirmar_senha = request.form.get("confirmar_senha")
+
+        if not nome or not email or not senha:
+            return render_template("registrar.html", erro="Preencha todos os campos.")
+
+        if senha != confirmar_senha:
+            return render_template("registrar.html", erro="As senhas não coincidem.")
+
+        if Usuario.query.filter_by(email=email).first():
+            return render_template("registrar.html", erro="Este e-mail já está registrado.")
+
+        senha_hash = generate_password_hash(senha)
+        novo_usuario = Usuario(nome=nome, email=email, senha=senha_hash)
+        db.session.add(novo_usuario)
+        db.session.commit()
+
+        flash("Conta criada com sucesso! Faça login.", "success")
+        return redirect(url_for("login_usuario"))
+
+    return render_template("registrar.html")
+
+@app.route('/login-user', methods=['GET', 'POST'])
+def login_usuario_comum():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        senha = request.form.get('senha', '')
+
+        usuario = Usuario.query.filter_by(email=email).first()
+        if usuario and check_password_hash(usuario.senha, senha):
+            session['usuario_id'] = usuario.id
+            session['usuario_nome'] = usuario.nome
+            flash(f"Bem-vindo(a), {usuario.nome.split()[0]}!", "info")
+            return redirect(url_for("painel_usuario"))
+
+        flash("E-mail ou senha inválidos.", "danger")
+
+    return render_template("login_user.html")
+
+@app.route("/painel")
+def painel_usuario():
+    usuario_id = session.get("usuario_id")
+    if not usuario_id:
+        flash("Você precisa estar logado para acessar o painel.", "warning")
+        return redirect(url_for("login_usuario"))
+
+    usuario = Usuario.query.get(usuario_id)
+    if not usuario:
+        flash("Sessão inválida. Faça login novamente.", "danger")
+        session.clear()
+        return redirect(url_for("login_usuario"))
+
+    return render_template("painel.html", usuario=usuario)
+@app.route('/logout-user')
+def logout_usuario():
+    session.pop('usuario_id', None)
+    session.pop('usuario_nome', None)
+    flash("Você saiu da conta com sucesso.", "info")
+    return redirect(url_for('home_inteligente'))
 
 @app.route('/frontend/<path:filename>')
 def frontend_static(filename):
@@ -288,7 +389,6 @@ Escreva no máximo 3 linhas com:
     return jsonify(top_3)
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -303,6 +403,53 @@ def login():
             return redirect(url_for('dashboard'))
         return render_template('login.html', erro=True)
     return render_template('login.html')
+
+@app.route('/excluir_usuario_comum/<int:user_id>')
+def excluir_usuario_comum(user_id):
+    if 'user' not in session or session['user'] not in SUPER_ADMINS:
+        return "Acesso negado", 403
+
+    usuario = Usuario.query.get(user_id)
+    if not usuario:
+        return "Usuário não encontrado", 404
+
+    db.session.delete(usuario)
+    db.session.commit()
+    flash("Usuário excluído com sucesso.", "success")
+    return redirect(url_for('gerenciar_usuarios'))
+
+@app.route('/login-user', methods=['GET', 'POST'])
+def login_usuario():
+    if request.method == 'POST':
+        email = request.form['email'].strip().lower()
+        senha = request.form['senha']
+
+        usuario = Usuario.query.filter_by(email=email).first()
+        if usuario and check_password_hash(usuario.senha, senha):
+            session['usuario_nome'] = usuario.nome
+            session['usuario_id'] = usuario.id
+            session['usuario_email'] = usuario.email
+
+            # Atualiza métricas de uso
+            usuario.ultimo_login = datetime.utcnow()
+            usuario.acessos_total += 1
+            usuario.navegador = request.user_agent.browser
+            usuario.dispositivo = request.user_agent.platform
+
+            # Geolocalização baseada no IP (usando IPInfo ou outro serviço externo se necessário)
+            try:
+                ip = request.remote_addr
+                cidade, estado = obter_localizacao_por_ip(ip)  # função fictícia, deve implementar API externa
+                usuario.cidade = cidade
+                usuario.estado = estado
+            except:
+                pass
+
+            db.session.commit()
+            return redirect(url_for('painel_usuario'))
+        else:
+            flash("E-mail ou senha inválidos.", "danger")
+    return render_template("login_user.html")
 
 @app.route('/dashboard')
 def dashboard():
@@ -320,17 +467,16 @@ def gerenciar_usuarios():
     if 'user' not in session or session['user'] not in SUPER_ADMINS:
         return "Acesso negado", 403
 
-    # Carregar admins do banco
     admins = Admin.query.all()
+    usuarios_comuns = Usuario.query.order_by(Usuario.data_cadastro.desc()).all()
 
-    # Carregar logs
+    # MÉTRICAS
     try:
         with open('logs/app_security.log', 'r', encoding='utf-8') as f:
             logs = f.readlines()
     except Exception as e:
         logs = [f"Erro ao carregar log: {e}"]
 
-    # Carregar métricas de acesso
     total_index = 0
     unique_index_ips = 0
     try:
@@ -341,7 +487,6 @@ def gerenciar_usuarios():
     except Exception:
         pass
 
-    # Carregar histórico de buscas
     busca_contagem = {}
     categoria_contagem = {}
     try:
@@ -357,7 +502,6 @@ def gerenciar_usuarios():
     except FileNotFoundError:
         pass
 
-    # Ordenar por frequência
     perguntas_populares = sorted(busca_contagem.items(), key=lambda x: x[1], reverse=True)[:10]
     categorias_populares = sorted(categoria_contagem.items(), key=lambda x: x[1], reverse=True)[:10]
 
@@ -366,14 +510,18 @@ def gerenciar_usuarios():
     return render_template(
         "usuarios.html",
         admins=admins,
-        logs=logs[::-1],
+        usuarios=admins,
+        usuarios_comuns=usuarios_comuns,
         total_index=total_index,
         unique_index_ips=unique_index_ips,
         perguntas_populares=perguntas_populares,
         categorias_populares=categorias_populares,
         grafico_barras=img1_base64,
-        grafico_pizza=img2_base64
+        grafico_pizza=img2_base64,
+        logs=logs[::-1]
     )
+
+
 
 @app.route('/excluir_usuario/<int:user_id>')
 def excluir_usuario(user_id):
@@ -675,7 +823,7 @@ def home_inteligente():
                            casos_reais=casos_reais)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     if not os.path.exists(app.config['DATABASE_FILE']):
         with open(app.config['DATABASE_FILE'], 'w') as f:

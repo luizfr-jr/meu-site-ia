@@ -4,105 +4,176 @@
 
 {% block content %}
 <style>
-  .search-container {
-    margin: 30px auto;
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  .search-top {
+    margin: 30px auto 10px;
     display: flex;
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
+    max-width: 1000px;
   }
 
-  .search-container input,
-  .search-container select {
-    padding: 10px;
-    border-radius: 20px;
+  .search-top input {
+    padding: 12px 20px;
+    border-radius: 8px;
     border: 1px solid #ccc;
+    width: 400px;
+    font-size: 15px;
   }
 
-  .search-container input {
-    width: 300px;
-  }
-
-  .search-container button {
-    padding: 10px 20px;
-    border-radius: 20px;
+  .search-top button {
+    padding: 12px 24px;
+    border-radius: 8px;
     border: none;
     background-color: #007bff;
     color: white;
+    font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
+  }
+
+  .search-top button:hover {
+    background-color: #0056b3;
+  }
+
+  .filtros-baixo {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    margin-bottom: 30px;
+  }
+
+  .filtros-baixo select,
+  .filtros-baixo button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+  }
+
+  .filtros-baixo button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
     font-weight: bold;
   }
 
-  .search-container button:hover {
-    background-color: #0056b3;
+  .filtros-baixo button:hover {
+    background-color: #b02a37;
+  }
+
+  .tags-sugestoes {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .tags-sugestoes button {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 15px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+  }
+
+  .tags-sugestoes button:hover {
+    background-color: #007bff;
+    color: white;
   }
 
   .cards-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 25px;
-    padding: 20px;
+    padding: 30px;
   }
 
   .card {
     background: white;
     border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 25px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
   }
 
   .card.destaque {
     border: 2px solid #007bff;
-    box-shadow: 0 0 20px rgba(0,123,255,0.4);
+    box-shadow: 0 0 20px rgba(0,123,255,0.3);
   }
 
   .card img {
     width: 100px;
     height: 100px;
     object-fit: contain;
+    margin-bottom: 15px;
+  }
+
+  .card h2 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #333;
+  }
+
+  .card p {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .explicacao {
+    font-size: 13px;
+    color: #777;
+    margin-top: 10px;
+    font-style: italic;
   }
 
   .botao {
     display: inline-block;
     padding: 10px 20px;
+    margin-top: 15px;
     background: #007bff;
     color: white;
     border-radius: 20px;
     text-decoration: none;
-    margin-top: 10px;
+    font-weight: bold;
   }
 
   .botao:hover {
     background: #0056b3;
   }
 
-  .explicacao {
-    font-size: 14px;
-    color: #444;
-    margin-top: 12px;
-    font-style: italic;
-    text-align: justify;
-  }
-
-  .footer-content {
-    text-align: center;
-    padding: 20px;
-    margin-top: 40px;
-    background: #f1f1f1;
-  }
-
-  .social-icons a {
-    color: #007bff;
-    margin: 0 10px;
-    font-size: 20px;
+  @media (max-width: 600px) {
+    .search-top input {
+      width: 100%;
+    }
   }
 </style>
 
-<!-- BUSCA -->
-<div class="search-container">
+<div class="search-top">
   <input type="text" id="busca-input" placeholder="O que você quer fazer com IA?" />
+  <button onclick="buscarIA()">Buscar IA</button>
+</div>
+
+<div class="filtros-baixo">
   <select id="categoria-select">
     <option value="">Todas as Categorias</option>
     <option value="texto">Texto</option>
@@ -113,28 +184,31 @@
     <option value="mapa mental">Mapa Mental</option>
     <option value="assistente">Assistente</option>
   </select>
-  <button onclick="buscarIA()">Buscar IA Ideal</button>
+  <button onclick="limparBusca()">Limpar</button>
 </div>
 
-<!-- CARDS -->
-<div class="cards-container" id="cards-container">
-  <!-- Populado via script -->
+<div class="tags-sugestoes">
+  <strong>Dicas:</strong>
+  <button onclick="usarSugestao('resumir texto')">resumir texto</button>
+  <button onclick="usarSugestao('criar imagem')">criar imagem</button>
+  <button onclick="usarSugestao('traduzir PDF')">traduzir PDF</button>
+  <button onclick="usarSugestao('fazer mapa mental')">fazer mapa mental</button>
+  <button onclick="usarSugestao('gerar código')">gerar código</button>
 </div>
 
-<!-- RODAPÉ -->
-<div class="footer-content">
-  <div class="social-icons">
-    <a href="https://github.com/luizfr-jr" target="_blank"><i class="fab fa-github"></i></a>
-    <a href="https://www.linkedin.com/in/luiz-fernando-rodrigues-j%C3%BAnior-65667938/" target="_blank"><i class="fab fa-linkedin"></i></a>
-    <a href="https://www.instagram.com/luizfr_jr/" target="_blank"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.tiktok.com/@luizfr.jr" target="_blank"><i class="fab fa-tiktok"></i></a>
-  </div>
-  <p>Criado por Prof. Dr. Luiz Fernando Rodrigues Junior • Contato:
-    <a href="mailto:luiz.fernando@ufn.edu.br">luiz.fernando@ufn.edu.br</a></p>
-  <p>© 2025 Todos os direitos reservados.</p>
-</div>
+<div class="cards-container" id="cards-container"></div>
 
 <script>
+  const categorias_keywords = {
+    "texto": ["redação", "escrever", "texto", "conteúdo"],
+    "imagem": ["imagem", "foto", "visual", "desenho"],
+    "pesquisa": ["pesquisa", "artigos", "científica", "estudo", "dados"],
+    "tradução": ["tradução", "traduzir", "idiomas", "línguas"],
+    "educação": ["estudos", "aprender", "educação", "ensino", "anotações"],
+    "mapa mental": ["mapa mental", "mapa", "diagramas", "visual", "fluxograma"],
+    "assistente": ["assistente", "ajuda", "conversa", "copiloto", "chat"]
+  };
+
   function renderCard(tool, isDestaque = false) {
     const card = document.createElement('div');
     card.className = isDestaque ? 'card destaque' : 'card';
@@ -163,9 +237,25 @@
     const categoria = document.getElementById('categoria-select').value.trim();
     const container = document.getElementById('cards-container');
 
-    container.innerHTML = '<p><strong>Carregando IA...</strong></p>';
+    container.innerHTML = '<p><strong>🔎 Buscando IA...</strong></p>';
 
-    if (!pergunta && !categoria) return carregarTodas();
+    if (!pergunta && categoria) {
+      fetch('/api/ferramentas')
+        .then(res => res.json())
+        .then(data => {
+          const palavrasChave = categorias_keywords[categoria] || [];
+          const filtradas = data.filter(ferramenta =>
+            palavrasChave.some(palavra => ferramenta.descricao.toLowerCase().includes(palavra))
+          );
+          container.innerHTML = '';
+          filtradas.forEach(tool => container.appendChild(renderCard(tool)));
+        });
+      return;
+    }
+
+    if (!pergunta && !categoria) {
+      return carregarTodas();
+    }
 
     fetch('/buscar_ia_local', {
       method: 'POST',
@@ -175,13 +265,9 @@
       .then(res => res.json())
       .then(tools => {
         container.innerHTML = '';
-        if (Array.isArray(tools)) {
-          tools.forEach((tool, index) => {
-            container.appendChild(renderCard(tool, index === 0));
-          });
-        } else {
-          container.appendChild(renderCard(tools, true));
-        }
+        tools.forEach((tool, index) =>
+          container.appendChild(renderCard(tool, index === 0))
+        );
       })
       .catch(err => {
         console.error('❌ Erro ao buscar IA:', err);
@@ -189,6 +275,24 @@
         carregarTodas();
       });
   }
+
+  function usarSugestao(texto) {
+    document.getElementById('busca-input').value = texto;
+    buscarIA();
+  }
+
+  function limparBusca() {
+    document.getElementById('busca-input').value = '';
+    document.getElementById('categoria-select').value = '';
+    carregarTodas();
+  }
+
+  document.getElementById('busca-input').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      buscarIA();
+    }
+  });
 
   carregarTodas();
 </script>

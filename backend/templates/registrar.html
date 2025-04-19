@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - Meu Site IA{% endblock %}
+
+{% block content %}
+<style>
+  .form-container {
+    max-width: 500px;
+    margin: auto;
+    padding: 40px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+
+  .form-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-container input[type="text"],
+  .form-container input[type="email"],
+  .form-container input[type="password"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+
+  .form-container .termos {
+    font-size: 14px;
+  }
+
+  .form-container button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .form-container button:hover {
+    background-color: #0056b3;
+  }
+
+  .form-container .login-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+  }
+
+  .form-container .login-link a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  .form-container .login-link a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="form-container">
+  <h2>📝 Criar Conta</h2>
+  <form method="POST" action="/registrar">
+    <input type="text" name="nome" placeholder="Nome completo" required>
+    <input type="email" name="email" placeholder="Seu e-mail" required>
+    <input type="password" name="senha" placeholder="Senha" required minlength="6">
+    <input type="password" name="confirmar_senha" placeholder="Confirmar senha" required minlength="6">
+
+    <div class="termos">
+      <label>
+        <input type="checkbox" name="aceita_termos" required>
+        Li e aceito os <a href="#" data-bs-toggle="modal" data-bs-target="#modalPolitica">Termos de Uso e Política de Privacidade</a>.
+      </label>
+    </div>
+
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <div class="login-link">
+    Já possui conta? <a href="/login-user">Entrar</a>
+  </div>
+</div>
+{% endblock %}

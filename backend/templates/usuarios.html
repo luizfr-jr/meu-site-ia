@@ -131,34 +131,101 @@
 <div class="container">
   <h1>Gestão de Usuários</h1>
 
-  {% if admins|length == 0 %}
-    <p style="text-align:center;">Nenhum usuário cadastrado ainda.</p>
+  {% if usuarios|length == 0 %}
+    <p style="text-align:center;">Nenhum administrador de acesso limitado registrado ainda.</p>
   {% else %}
+    <h2>👥 Usuários Registrados</h2>
     <table>
       <thead>
         <tr>
-          <th>Nome de Usuário</th>
+          <th>Nome</th>
           <th>Email</th>
           <th class="actions">Ações</th>
         </tr>
       </thead>
       <tbody>
-        {% for admin in admins %}
+        {% for user in usuarios %}
           <tr>
-            <td>{{ admin.username }}</td>
-            <td>{{ admin.email }}</td>
+            <td>{{ user.nome }}</td>
+            <td>{{ user.email }}</td>
             <td class="actions">
-              {% if admin.username not in ['admin', 'luiz'] %}
-                <a href="{{ url_for('excluir_usuario', user_id=admin.id) }}" class="delete-button" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">❌</a>
-              {% else %}
-                <span style="color: #ccc;">Protegido</span>
-              {% endif %}
+              <a href="{{ url_for('editar_usuario_comum', user_id=user.id) }}" class="delete-button">✏️</a>
+              <a href="{{ url_for('excluir_usuario_comum', user_id=user.id) }}" class="delete-button" onclick="return confirm('Deseja excluir este usuário?')">❌</a>
             </td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   {% endif %}
+
+  <div class="metricas">
+    <h2>👥 Usuários Comuns</h2>
+    {% if usuarios_comuns|length == 0 %}
+      <p style="text-align:center;">Nenhum usuário público registrado ainda.</p>
+    {% else %}
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th class="actions">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios_comuns %}
+            <tr>
+              <td>{{ u.nome }}</td>
+              <td>{{ u.email }}</td>
+              <td class="actions">
+                <a href="{{ url_for('excluir_usuario_comum', user_id=u.id) }}" class="delete-button" onclick="return confirm('Tem certeza que deseja excluir este usuário permanentemente?')">❌</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  <div class="metricas">
+    <h2>📊 Análise de Usuários</h2>
+    <ul class="lista-metricas">
+      <li><span>Total de contas criadas</span><span>{{ usuarios_comuns|length }}</span></li>
+      <li><span>Média de acessos por usuário</span>
+        <span>
+          {% set total_acessos = usuarios_comuns | map(attribute='acessos_total') | sum %}
+          {{ (total_acessos // (usuarios_comuns|length if usuarios_comuns|length > 0 else 1)) }}
+        </span>
+      </li>
+      <li><span>Usuário mais ativo</span>
+        <span>
+          {% set mais_ativo = usuarios_comuns|sort(attribute='acessos_total', reverse=True)|first %}
+          {{ mais_ativo.nome }} ({{ mais_ativo.acessos_total }} acessos)
+        </span>
+      </li>
+      <li><span>Navegador mais comum</span>
+        <span>
+          {% set navegadores = {} %}
+          {% for u in usuarios_comuns %}
+            {% set navegador = u.navegador or "Desconhecido" %}
+            {% set _ = navegadores.update({navegador: navegadores.get(navegador, 0) + 1}) %}
+          {% endfor %}
+          {% set mais_comum = navegadores|dictsort(reverse=true)|first %}
+          {{ mais_comum[0] }} ({{ mais_comum[1] }})
+        </span>
+      </li>
+      <li><span>Dispositivo mais comum</span>
+        <span>
+          {% set dispositivos = {} %}
+          {% for u in usuarios_comuns %}
+            {% set dispositivo = u.dispositivo or "Desconhecido" %}
+            {% set _ = dispositivos.update({dispositivo: dispositivos.get(dispositivo, 0) + 1}) %}
+          {% endfor %}
+          {% set mais_comum = dispositivos|dictsort(reverse=true)|first %}
+          {{ mais_comum[0] }} ({{ mais_comum[1] }})
+        </span>
+      </li>
+    </ul>
+  </div>
 
   <div class="metricas">
     <h2>📈 Métricas de Acesso</h2>
@@ -173,9 +240,7 @@
         <li><span>{{ pergunta }}</span><span>{{ count }}x</span></li>
       {% endfor %}
     </ul>
-    <p>📊 Média de buscas: <strong>{{
-      (perguntas_populares | map(attribute=1) | sum) // (perguntas_populares | length if perguntas_populares|length > 0 else 1)
-    }}</strong></p>
+    <p>📊 Média de buscas: <strong>{% set total = perguntas_populares | map(attribute=1) | sum %}{{ total // (perguntas_populares|length if perguntas_populares|length > 0 else 1) }}</strong></p>
   </div>
 
   <div class="chart">
