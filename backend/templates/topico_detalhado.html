@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% block title %}{{ topico.titulo }} - Fórum{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+  .topico-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .topico-header h2 {
+    margin-bottom: 10px;
+    color: #007bff;
+  }
+  .topico-meta {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  .resumo-ia {
+    background: #eef9ff;
+    border-left: 4px solid #17a2b8;
+    padding: 12px;
+    font-style: italic;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  .resposta {
+    border-top: 1px solid #ccc;
+    padding-top: 15px;
+    margin-top: 25px;
+  }
+  .resposta h5 {
+    font-size: 1rem;
+    color: #007bff;
+  }
+  .resposta small {
+    font-size: 0.8rem;
+    color: #888;
+  }
+  .resposta-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+  .btn-ia {
+    margin-bottom: 10px;
+    display: block;
+  }
+  .btn-actions {
+    margin-top: 15px;
+  }
+  textarea {
+    resize: vertical;
+  }
+  .resposta-form {
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+  }
+  .resposta-nivel {
+    margin-left: 40px;
+  }
+  .collapse-btn {
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+  #resumo-geral {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+  }
+</style>
+
+<div class="topico-container">
+  <div class="topico-header">
+    <h2>{{ topico.titulo }}</h2>
+    <div class="topico-meta">
+      Criado por <strong>{{ topico.usuario.nome }}</strong> em {{ topico.data_criacao.strftime('%d/%m/%Y %H:%M') }}
+      • {{ topico.curtidas}} curtidas
+      • {{ topico.respostas}} respostas
+    </div>
+  </div>
+
+  <p>{{ topico.conteudo }}</p>
+
+  {% if topico.resumo_ia %}
+    <div class="resumo-ia">🧠 <strong>Resumo IA:</strong> {{ topico.resumo_ia }}</div>
+  {% endif %}
+
+  {% if usuario_id %}
+    <form method="POST" action="{{ url_for('resumir_topico', id=topico.id) }}" onsubmit="resumirThread(event, {{ topico.id }})">
+      <button type="submit" class="btn btn-outline-info btn-sm btn-ia">🧠 Resumir Thread com IA</button>
+    </form>
+    <div id="resumo-geral" style="display:none;"></div>
+  {% endif %}
+
+  <div class="btn-actions">
+    {% if usuario_id == topico.usuario.id %}
+      <button onclick="abrirModalEditarTopico({{ topico.id }}, '{{ topico.titulo|e }}', `{{ topico.conteudo|e }}`, '{{ topico.categoria }}')" class="btn btn-sm btn-outline-primary">✏️ Editar</button>
+      <form method="POST" action="{{ url_for('excluir_topico', id=topico.id) }}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este tópico?');">
+        <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Excluir</button>
+      </form>
+    {% endif %}
+    <form method="POST" action="{{ url_for('reportar_topico', id=topico.id) }}" style="display:inline;" onsubmit="return confirm('Deseja reportar este tópico?');">
+      <button type="submit" class="btn btn-sm btn-outline-warning">🚨 Reportar</button>
+    </form>
+  </div>
+
+  <hr>
+  <h4>💬 Respostas</h4>
+  <div class="mb-3">
+    <label>Ordenar por:</label>
+    <select id="ordenar-respostas" class="form-select form-select-sm" onchange="ordenarRespostas()">
+      <option value="recentes">🕓 Mais Recentes</option>
+      <option value="curtidas">👍 Mais Curtidas</option>
+    </select>
+  </div>
+
+  {% macro render_respostas(respostas, todas_respostas, nivel=0) %}
+    {% for resposta in respostas %}
+      <div class="resposta resposta-nivel" style="margin-left: {{ nivel * 30 }}px" id="resposta-{{ resposta.id }}">
+        <h5>{{ resposta.usuario.nome }}</h5>
+        <small>{{ resposta.criado_em.strftime('%d/%m/%Y %H:%M') }}</small>
+        <p>
+          {% if resposta.citado %}
+            <blockquote class="border-start ps-3 text-muted">{{ resposta.citado.usuario.nome }} disse: {{ resposta.citado.conteudo }}</blockquote>
+          {% endif %}
+          {{ resposta.conteudo }}
+        </p>
+        <div class="resposta-actions">
+          {% if usuario_id %}
+            <button class="btn btn-sm btn-outline-secondary" onclick="mostrarFormResposta({{ resposta.id }}, '{{ resposta.usuario.nome }}')">💬 Responder</button>
+            <form method="POST" action="{{ url_for('curtir_resposta', id=resposta.id) }}" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-outline-primary">👍 Curtir</button>
+            </form>
+          {% endif %}
+          {% if usuario_id == resposta.usuario.id %}
+            <button class="btn btn-sm btn-outline-success" onclick="abrirModalEditarResposta({{ resposta.id }}, `{{ resposta.conteudo|e }}`)">✏️ Editar</button>
+            <form method="POST" action="{{ url_for('excluir_resposta', id=resposta.id) }}" style="display:inline;" onsubmit="return confirm('Excluir resposta?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Excluir</button>
+            </form>
+          {% endif %}
+        </div>
+        <button class="collapse-btn" onclick="colapsarRespostas(this)">▼ Mostrar/Ocultar Respostas</button>
+        <div class="resposta-subgrupo">
+          {% set respostas_filhas = todas_respostas | selectattr('citado_id', 'equalto', resposta.id) | list %}
+          {{ render_respostas(respostas_filhas, todas_respostas, nivel + 1) }}
+        </div>
+      </div>
+    {% endfor %}
+  {% endmacro %}
+
+  {% set respostas_raiz = respostas | selectattr('citado_id', 'equalto', None) | list %}
+  <div id="lista-respostas">
+    {{ render_respostas(respostas_raiz, respostas) }}
+  </div>
+
+  {% if usuario_id %}
+    <hr>
+    <h5>✍️ Responder</h5>
+    <form method="POST" action="{{ url_for('responder_topico', id=topico.id) }}">
+      <div class="mb-3">
+        <textarea name="conteudo" class="form-control" rows="4" required placeholder="Escreva sua resposta aqui..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-success">Responder</button>
+    </form>
+  {% else %}
+    <p><a href="{{ url_for('login_usuario') }}">Faça login</a> para responder.</p>
+  {% endif %}
+</div>
+
+<!-- Modais -->
+<div class="modal fade" id="modalEditarResposta" tabindex="-1" aria-labelledby="modalEditarRespostaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="POST" id="form-editar-resposta">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEditarRespostaLabel">✏️ Editar Resposta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="edit_resposta_conteudo" name="conteudo" class="form-control" rows="4" required></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="modalEditarTopico" tabindex="-1" aria-labelledby="modalEditarTopicoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content" method="POST" id="form-editar-topico">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEditarTopicoLabel">✏️ Editar Tópico</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body text-start">
+        <div class="mb-3">
+          <label for="edit_titulo" class="form-label">Título</label>
+          <input type="text" class="form-control" id="edit_titulo" name="titulo" required maxlength="150">
+        </div>
+        <div class="mb-3">
+          <label for="edit_conteudo" class="form-label">Conteúdo</label>
+          <textarea class="form-control" id="edit_conteudo" name="conteudo" rows="6" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="edit_categoria" class="form-label">Categoria</label>
+          <select class="form-select" id="edit_categoria" name="categoria" required>
+            <option value="Geral">💬 Geral</option>
+            <option value="Dúvidas Técnicas">🛠 Dúvidas Técnicas</option>
+            <option value="Projetos">📂 Projetos</option>
+            <option value="Sugestões">✨ Sugestões</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+    let topicoId = {{ topico.id }};
+    
+    function abrirModalEditarResposta(id, conteudo) {
+      document.getElementById("form-editar-resposta").action = `/forum/resposta/editar/${id}`;
+      document.getElementById("edit_resposta_conteudo").value = conteudo;
+      new bootstrap.Modal(document.getElementById("modalEditarResposta")).show();
+    }
+    
+    function abrirModalEditarTopico(id, titulo, conteudo, categoria) {
+      document.getElementById('form-editar-topico').action = `/forum/editar/${id}`;
+      document.getElementById('edit_titulo').value = titulo;
+      document.getElementById('edit_conteudo').value = conteudo;
+      document.getElementById('edit_categoria').value = categoria;
+      new bootstrap.Modal(document.getElementById("modalEditarTopico")).show();
+    }
+    
+    function mostrarFormResposta(id, nome) {
+      let formDiv = document.getElementById(`resposta-form-${id}`);
+      if (!formDiv) {
+        formDiv = document.createElement('div');
+        formDiv.id = `resposta-form-${id}`;
+        formDiv.className = 'resposta-form';
+        formDiv.innerHTML = `
+          <form method="POST" action="/forum/responder/${topicoId}">
+            <input type="hidden" name="citado_id" value="${id}">
+            <div class="mb-2">
+              <textarea name="conteudo" class="form-control" rows="3" required placeholder="Responder para ${nome}..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-sm btn-success">Responder</button>
+          </form>
+        `;
+        const parentDiv = document.getElementById(`resposta-${id}`);
+        if (parentDiv) {
+          parentDiv.appendChild(formDiv);
+        } else {
+          // fallback caso id não exista
+          const respostaBloco = document.querySelector(`#resposta-${id}`);
+          if (respostaBloco) respostaBloco.appendChild(formDiv);
+        }
+      } else {
+        formDiv.style.display = formDiv.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+    
+    function colapsarRespostas(btn) {
+      const respostas = btn.nextElementSibling;
+      if (respostas.style.display === 'none') {
+        respostas.style.display = 'block';
+        btn.textContent = '▼ Mostrar/Ocultar Respostas';
+      } else {
+        respostas.style.display = 'none';
+        btn.textContent = '▶ Mostrar Respostas';
+      }
+    }
+    
+    function ordenarRespostas() {
+      const modo = document.getElementById('ordenar-respostas').value;
+      const url = new URL(window.location.href);
+      url.searchParams.set('ordenar', modo);
+      window.location.href = url.toString();
+    }
+    
+    function resumirThread(event, topicoId) {
+      event.preventDefault();
+      fetch(`/forum/resumir_thread/${topicoId}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+          const box = document.getElementById('resumo-geral');
+          if (data.resumo) {
+            box.style.display = 'block';
+            box.innerHTML = '🧠 <strong>Resumo IA:</strong> ' + data.resumo;
+          } else {
+            box.style.display = 'block';
+            box.innerHTML = '<strong>Erro ao gerar resumo IA.</strong>';
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao gerar resumo.");
+        });
+    }
+    </script>
+{% endblock %}

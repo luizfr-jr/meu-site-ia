@@ -118,7 +118,7 @@
 
     {% if ferramenta %}
       <h2>Editando: {{ ferramenta.nome }}</h2>
-      <form method="POST" action="/editar/{{ id }}" enctype="multipart/form-data">
+      <form method="POST" action="/editar_ferramenta/{{ ferramenta.id }}" enctype="multipart/form-data">
         <input type="text" name="nome" placeholder="Nome da ferramenta" value="{{ ferramenta.nome }}" required>
         <textarea name="descricao" placeholder="Descrição" required>{{ ferramenta.descricao }}</textarea>
         <input type="url" name="link" placeholder="Link (https://...)" value="{{ ferramenta.link }}" required>
@@ -128,7 +128,7 @@
       <hr>
     {% else %}
       <h2>Adicionar Nova Ferramenta</h2>
-      <form method="POST" action="/adicionar" enctype="multipart/form-data">
+      <form method="POST" action="/adicionar_ferramenta" enctype="multipart/form-data">
         <input type="text" name="nome" placeholder="Nome da ferramenta" required>
         <textarea name="descricao" placeholder="Descrição" required></textarea>
         <input type="url" name="link" placeholder="Link (https://...)" required>
@@ -143,8 +143,8 @@
       <div class="card">
         <span>{{ f.nome }}</span>
         <div>
-          <a href="/editar/{{ loop.index0 }}" title="Editar">✏️</a>
-          <a href="/remover/{{ loop.index0 }}" title="Remover">❌</a>
+          <a href="/editar_ferramenta/{{ f.id }}" title="Editar">✏️</a>
+          <a href="/remover_ferramenta/{{ f.id }}" title="Remover">❌</a>
         </div>
       </div>
       {% endfor %}
@@ -160,7 +160,6 @@
           <br><br>
           <a href="/noticias" class="botao">📰 Definir Notícia Curada</a>
         {% endif %}
-      </div>
-
+    </div>
   </div>
 {% endblock %}

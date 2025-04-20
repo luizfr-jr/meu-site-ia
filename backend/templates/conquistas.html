@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Conquistas - Meu Site IA{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+  .conquistas-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+  .conquistas-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .conquistas-header h2 {
+    color: #007bff;
+    font-size: 2rem;
+  }
+  .medalha-card {
+    display: flex;
+    align-items: center;
+    background: #f7f9fc;
+    border: 1px solid #ddd;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    gap: 20px;
+  }
+  .medalha-card img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ccc;
+  }
+  .medalha-info {
+    flex-grow: 1;
+  }
+  .medalha-info h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  .medalha-info p {
+    margin: 5px 0 0;
+    color: #555;
+    font-size: 0.9rem;
+  }
+  .medalha-data {
+    font-size: 0.8rem;
+    color: #999;
+    white-space: nowrap;
+  }
+</style>
+
+<div class="conquistas-container">
+  <div class="conquistas-header">
+    <h2>🏅 Minhas Conquistas</h2>
+  </div>
+
+  {% if usuario.medalhas %}
+    {% for medalha in usuario.medalhas %}
+      <div class="medalha-card">
+        <img src="{{ url_for('static', filename='img/medalhas/' ~ medalha.icone) }}" alt="{{ medalha.nome }}">
+        <div class="medalha-info">
+          <h5>{{ medalha.nome }}</h5>
+          <p>{{ medalha.descricao }}</p>
+        </div>
+        <div class="medalha-data">
+          {{ medalha.data_conquista.strftime('%d/%m/%Y') }}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center text-muted">Você ainda não possui conquistas. Participe do fórum para conquistar medalhas!</p>
+  {% endif %}
+</div>
+{% endblock %}

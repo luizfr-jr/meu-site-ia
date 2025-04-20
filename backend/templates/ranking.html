@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Ranking de Usuários - Meu Site IA{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+  .ranking-container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 40px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .ranking-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .ranking-header h2 {
+    color: #007bff;
+    font-size: 2rem;
+  }
+  .ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .ranking-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.3s ease;
+  }
+  .ranking-item:nth-child(odd) {
+    background: #f9f9f9;
+  }
+  .ranking-item:hover {
+    background: #eef9ff;
+  }
+  .ranking-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .ranking-info img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #007bff;
+  }
+  .ranking-info .name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+  }
+  .ranking-info .name:hover {
+    text-decoration: underline;
+  }
+  .ranking-pontos {
+    font-size: 1.1rem;
+    color: #333;
+    text-align: right;
+  }
+  .ranking-pontos button {
+    font-size: 0.85rem;
+    color: #007bff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .medalha {
+    font-size: 1.5rem;
+    margin-right: 10px;
+  }
+  .nav-tabs .nav-link.active {
+    background-color: #007bff;
+    color: white;
+  }
+</style>
+
+<div class="ranking-container">
+  <div class="ranking-header">
+    <h2>🏆 Ranking dos Usuários Mais Ativos</h2>
+    <p>Veja quem são os membros mais participativos da comunidade!</p>
+  </div>
+  <ul class="ranking-list">
+    {% for usuario in usuarios %}
+      <li class="ranking-item">
+        <div class="ranking-info">
+          {% if loop.index == 1 %}<span class="medalha">🥇</span>{% elif loop.index == 2 %}<span class="medalha">🥈</span>{% elif loop.index == 3 %}<span class="medalha">🥉</span>{% else %}<span class="medalha">#{{ loop.index }}</span>{% endif %}
+          <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}" alt="Foto de Perfil">
+          <a class="name" href="{{ url_for('perfil_publico', id=usuario.id) }}">{{ usuario.nome }}</a>
+        </div>
+        <div class="ranking-pontos">
+          {{ usuario.pontos }} pontos
+          <button onclick="abrirModalHistorico({{ usuario.id }}, '{{ usuario.nome }}')">📊 Ver histórico</button>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- Modal de Histórico de Pontos com Tabs -->
+<div class="modal fade" id="modalHistorico" tabindex="-1" aria-labelledby="modalHistoricoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalHistoricoLabel">Histórico de Pontos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs" id="tabsHistorico">
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-topicos">📝 Tópicos</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-respostas">💬 Respostas</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-medalhas">🏅 Medalhas</a></li>
+        </ul>
+        <div class="tab-content pt-3">
+          <div class="tab-pane fade show active" id="tab-topicos"></div>
+          <div class="tab-pane fade" id="tab-respostas"></div>
+          <div class="tab-pane fade" id="tab-medalhas"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function abrirModalHistorico(usuarioId, nome) {
+  const modal = new bootstrap.Modal(document.getElementById("modalHistorico"));
+  document.getElementById("modalHistoricoLabel").innerHTML = `📊 Histórico de <strong>${nome}</strong>`;
+
+  const tabs = {
+    topicos: document.getElementById("tab-topicos"),
+    respostas: document.getElementById("tab-respostas"),
+    medalhas: document.getElementById("tab-medalhas")
+  };
+
+  tabs.topicos.innerHTML = '<p>Carregando tópicos...</p>';
+  tabs.respostas.innerHTML = '<p>Carregando respostas...</p>';
+  tabs.medalhas.innerHTML = '<p>Carregando medalhas...</p>';
+
+  fetch(`/api/historico/${usuarioId}`)
+    .then(res => res.json())
+    .then(data => {
+      tabs.topicos.innerHTML = '<ul>' + data.atividades.filter(a => a.descricao.includes("tópico")).map(a => `<li>${a.descricao} <small class='text-muted'>(${a.data})</small> <span class='text-success'>+${a.pontos} pts</span></li>`).join('') + '</ul>';
+      tabs.respostas.innerHTML = '<ul>' + data.atividades.filter(a => a.descricao.includes("Respondeu")).map(a => `<li>${a.descricao} <small class='text-muted'>(${a.data})</small> <span class='text-success'>+${a.pontos} pts</span></li>`).join('') + '</ul>';
+      tabs.medalhas.innerHTML = '<ul>' + data.atividades.filter(a => a.descricao.includes("medalha")).map(a => `<li>${a.descricao} <small class='text-muted'>(${a.data})</small></li>`).join('') + '</ul>';
+    })
+    .catch(() => {
+      tabs.topicos.innerHTML = '<p class="text-danger">Erro ao carregar.</p>';
+      tabs.respostas.innerHTML = '<p class="text-danger">Erro ao carregar.</p>';
+      tabs.medalhas.innerHTML = '<p class="text-danger">Erro ao carregar.</p>';
+    });
+
+  modal.show();
+}
+</script>
+{% endblock %}

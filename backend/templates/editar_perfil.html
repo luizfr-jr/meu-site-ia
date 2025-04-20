@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}Editar Perfil - Meu Site IA{% endblock %}
+
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+<style>
+  .perfil-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  }
+  .perfil-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+  }
+  .foto-preview {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .foto-preview img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #007bff;
+    object-fit: cover;
+  }
+  .botoes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 30px;
+  }
+  .botoes button {
+    padding: 12px;
+    flex: 1;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-salvar {
+    background: #007bff;
+    color: white;
+  }
+  .btn-excluir {
+    background: #dc3545;
+    color: white;
+  }
+  .btn-salvar:hover {
+    background: #0056b3;
+  }
+  .btn-excluir:hover {
+    background: #a72828;
+  }
+</style>
+
+<div class="perfil-container">
+  <h2>Editar Perfil</h2>
+
+  <!-- ✅ Imagem de perfil no topo -->
+  <div class="foto-preview">
+    <img id="preview-img" src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}" alt="Foto de perfil">
+  </div>
+
+  <!-- ✅ Formulário de imagem -->
+  <form id="form-foto" action="{{ url_for('editar_perfil') }}" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="foto">Nova Foto de Perfil</label>
+      <input type="file" id="foto" name="foto" accept="image/*">
+    </div>
+    <div class="botoes">
+      <button type="submit" class="btn-salvar">🖼️ Salvar Imagem</button>
+    </div>
+  </form>
+
+  <!-- ✅ Formulário de dados -->
+  <form action="{{ url_for('editar_perfil') }}" method="POST">
+    <div class="form-group">
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" name="nome" value="{{ usuario.nome }}">
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="{{ usuario.email }}" readonly>
+    </div>
+    <div class="form-group">
+      <label for="nova_senha">Nova Senha</label>
+      <input type="password" id="nova_senha" name="nova_senha">
+    </div>
+    <div class="form-group">
+      <label for="biografia">Biografia</label>
+      <textarea id="biografia" name="biografia" rows="4">{{ usuario.biografia or '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="linkedin">LinkedIn</label>
+      <input type="url" id="linkedin" name="linkedin" value="{{ usuario.linkedin or '' }}">
+    </div>
+    <div class="form-group">
+      <label for="instagram">Instagram</label>
+      <input type="url" id="instagram" name="instagram" value="{{ usuario.instagram or '' }}">
+    </div>
+    <div class="form-group">
+      <label for="github">GitHub</label>
+      <input type="url" id="github" name="github" value="{{ usuario.github or '' }}">
+    </div>
+    <div class="form-group">
+      <label for="tipo">Você é:</label>
+      <select id="tipo" name="tipo">
+        <option value="aluno" {% if usuario.tipo == 'aluno' %}selected{% endif %}>Aluno</option>
+        <option value="professor" {% if usuario.tipo == 'professor' %}selected{% endif %}>Professor</option>
+      </select>
+    </div>
+    <div class="botoes">
+      <button type="submit" class="btn-salvar">💾 Salvar Informações</button>
+    </div>
+  </form>
+
+  <!-- ✅ Formulário de exclusão -->
+  <form action="{{ url_for('excluir_conta') }}" method="POST" onsubmit="return confirmarExclusao();">
+    <button type="submit" class="btn-excluir">🗑️ Excluir Conta</button>
+  </form>
+</div>
+
+<!-- ✅ Modal de feedback -->
+<div id="modal-feedback" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:white; color:black; border:2px solid #007bff; border-radius:10px; padding:20px; z-index:9999; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
+  <span id="modal-mensagem"></span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+  let cropper;
+  const input = document.getElementById("foto");
+  const preview = document.getElementById("preview-img");
+
+  input.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        preview.src = e.target.result;
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(preview, {
+          aspectRatio: 1,
+          viewMode: 1,
+          movable: false,
+          zoomable: false,
+          cropBoxResizable: true
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.getElementById("form-foto").addEventListener("submit", function (e) {
+    if (cropper) {
+      e.preventDefault();
+      const canvas = cropper.getCroppedCanvas({ width: 150, height: 150 });
+      canvas.toBlob(blob => {
+        const container = new DataTransfer();
+        container.items.add(new File([blob], "imagem.webp", { type: "image/webp" }));
+        input.files = container.files;
+        this.submit();
+      }, "image/webp", 0.85);
+    }
+  });
+
+  function confirmarExclusao() {
+    return confirm("Tem certeza que deseja excluir sua conta permanentemente?");
+  }
+
+  window.onload = function () {
+    const mensagens = {{ get_flashed_messages(with_categories=true) | tojson }};
+    mensagens.forEach(([categoria, msg]) => {
+      const modal = document.getElementById("modal-feedback");
+      const mensagem = document.getElementById("modal-mensagem");
+      mensagem.textContent = msg;
+      modal.style.display = "block";
+      modal.style.borderColor = categoria === "imagem_ok" ? "#28a745" : "#dc3545";
+      setTimeout(() => modal.style.display = "none", 4000);
+    });
+  };
+</script>
+{% endblock %}

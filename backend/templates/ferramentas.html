@@ -217,7 +217,7 @@
       <h2>${tool.nome}</h2>
       <p>${tool.descricao}</p>
       ${tool.explicacao ? `<p class="explicacao">${tool.explicacao}</p>` : ''}
-      <a href="${tool.link}" target="_blank" class="botao">Acessar</a>
+      <a href="/acessar/${tool.id}" class="botao" target="_blank" rel="noopener">Acessar</a>
     `;
     return card;
   }

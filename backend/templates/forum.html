@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block title %}Fórum - Meu Site IA{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+  .forum-container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+  .forum-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+  .forum-header h2 {
+    margin: 0;
+    color: #007bff;
+    font-size: 1.8rem;
+  }
+  .forum-header .actions {
+    display: flex;
+    gap: 10px;
+  }
+  .forum-header .actions button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .forum-header .actions button:hover {
+    background: #0056b3;
+  }
+  .search-bar input, .filters select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .topic-card {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-left: 6px solid #007bff;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+  .topic-card:hover {
+    background: #f0f8ff;
+  }
+  .topic-card h4 {
+    margin: 0 0 8px;
+  }
+  .topic-card p {
+    margin: 0;
+    color: #555;
+  }
+  .topic-meta {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 8px;
+  }
+  .resumo-ia {
+    background: #eef9ff;
+    border-left: 4px solid #17a2b8;
+    padding: 10px;
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  .badge {
+    background: gold;
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-left: 10px;
+  }
+  .like-btn {
+    color: #007bff;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  .medalha-icone {
+    margin-left: 5px;
+    font-size: 1rem;
+  }
+  .ranking-conquistas-box {
+    display: flex;
+    gap: 20px;
+    margin: 40px 0 20px;
+    flex-wrap: wrap;
+  }
+  .ranking, .conquistas {
+    flex: 1;
+    background: #f8f9fa;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 10px;
+  }
+  .ranking ul, .conquistas ul {
+    padding-left: 20px;
+  }
+</style>
+
+<div class="forum-container">
+  <div class="forum-header">
+    <h2>🧐  Fórum Inteligente</h2>
+    <div class="actions">
+      <button onclick="abrirNovaDiscussao()">➕ Nova Discussão</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="busca-topico" placeholder="🔍 Buscar tópicos, termos, autores...">
+    </div>
+  </div>
+
+  <div class="filters">
+    <select id="filtro-categoria">
+      <option value="">Todas as Categorias</option>
+      <option value="Geral">💬 Geral</option>
+      <option value="Dúvidas Técnicas">🚰 Dúvidas Técnicas</option>
+      <option value="Projetos">📂 Projetos</option>
+      <option value="Sugestões">✨ Sugestões</option>
+    </select>
+    <select id="filtro-popularidade">
+      <option value="recentes">🕓 Mais Recentes</option>
+      <option value="populares">🔥 Mais Populares</option>
+      <option value="sem-resposta">🔠 Sem Resposta</option>
+    </select>
+  </div>
+
+  <div class="ranking-conquistas-box">
+    <div class="ranking">
+      <h5>🏆 Top 3 Usuários</h5>
+      <ul>
+        {% for usuario in ranking[:3] %}
+          <li>{{ loop.index }}. {{ usuario.nome }} ({{ usuario.pontos }} pts)</li>
+        {% endfor %}
+      </ul>
+      <a href="/ranking" class="btn btn-sm btn-outline-primary mt-2">Ver Ranking Geral</a>
+    </div>
+    <div class="conquistas">
+      <h5>🏇 Suas Conquistas</h5>
+      <ul>
+        {% for medalha in usuario_logado.medalhas %}
+          <li title="{{ medalha.descricao }}">{{ medalha.icone }} {{ medalha.nome }}</li>
+        {% endfor %}
+      </ul>
+      <a href="/conquistas" class="btn btn-sm btn-outline-success mt-2">Ver Todas</a>
+    </div>
+  </div>
+
+  {% for topico in topicos %}
+  <div class="topic-card">
+    <h4>
+      <a href="{{ url_for('ver_topico', id=topico.id) }}">{{ topico.titulo }}</a>
+      {% if topico.curtidas >= 10 %}<span class="badge">🔥 Em Alta</span>{% endif %}
+    </h4>
+    <p>{{ topico.conteudo[:150] }}{% if topico.conteudo|length > 150 %}...{% endif %}</p>
+    {% if topico.resumo_ia %}<div class="resumo-ia">🧠 Resumo IA: {{ topico.resumo_ia }}</div>{% endif %}
+    <div class="topic-meta">
+      Criado por <strong>{{ topico.usuario.nome }}</strong>
+      {% if topico.usuario.pontos is defined %}(🎯 {{ topico.usuario.pontos }} pts){% endif %}
+      {% set medalhas = topico.usuario.medalhas %}
+      {% for medalha in medalhas %}
+        <span class="medalha-icone" title="{{ medalha.nome }}">{{ medalha.icone }}</span>
+      {% endfor %}
+      <br>
+      em {{ topico.data_criacao.strftime('%d/%m/%Y') }}
+      • {{ topico.respostas_count }} respostas
+      • {{ topico.curtidas }} curtidas
+      <span class="like-btn" onclick="curtirTopico({{ topico.id }})"><i class="fas fa-thumbs-up"></i></span>
+    </div>
+    {% if usuario_id == topico.usuario.id %}
+    <div style="margin-top: 8px;">
+      {% if (topico.data_criacao + timedelta(hours=24)) > datetime.utcnow() %}
+        <button class="btn btn-sm btn-outline-primary me-2" onclick="abrirModalEditarTopico({{ topico.id }}, '{{ topico.titulo }}', `{{ topico.conteudo }}`, '{{ topico.categoria }}')">✏️ Editar</button>
+      {% endif %}
+      <form method="POST" action="{{ url_for('excluir_topico', id=topico.id) }}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este tópico?');">
+        <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Excluir</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<!-- MODAIS -->
+<div class="modal fade" id="modalNovaDiscussao" tabindex="-1" aria-labelledby="novaDiscussaoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content" method="POST" action="/forum/nova">
+      <div class="modal-header">
+        <h5 class="modal-title" id="novaDiscussaoLabel">➕ Criar Nova Discussão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body text-start">
+        <div class="mb-3">
+          <label for="titulo" class="form-label">Título do Tópico</label>
+          <input type="text" class="form-control" id="titulo" name="titulo" required maxlength="150">
+        </div>
+        <div class="mb-3">
+          <label for="conteudo" class="form-label">Conteúdo</label>
+          <textarea class="form-control" id="conteudo" name="conteudo" rows="6" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="categoria" class="form-label">Categoria</label>
+          <select class="form-select" id="categoria" name="categoria" required>
+            <option value="">Selecione uma categoria</option>
+            <option value="Geral">💬 Geral</option>
+            <option value="Dúvidas Técnicas">🚰 Dúvidas Técnicas</option>
+            <option value="Projetos">📂 Projetos</option>
+            <option value="Sugestões">✨ Sugestões</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Criar Tópico</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="modalEditarTopico" tabindex="-1" aria-labelledby="modalEditarTopicoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content" method="POST" id="form-editar-topico">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEditarTopicoLabel">✏️ Editar Tópico</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body text-start">
+        <div class="mb-3">
+          <label for="edit_titulo" class="form-label">Título</label>
+          <input type="text" class="form-control" id="edit_titulo" name="titulo" required maxlength="150">
+        </div>
+        <div class="mb-3">
+          <label for="edit_conteudo" class="form-label">Conteúdo</label>
+          <textarea class="form-control" id="edit_conteudo" name="conteudo" rows="6" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="edit_categoria" class="form-label">Categoria</label>
+          <select class="form-select" id="edit_categoria" name="categoria" required>
+            <option value="Geral">💬 Geral</option>
+            <option value="Dúvidas Técnicas">🚰 Dúvidas Técnicas</option>
+            <option value="Projetos">📂 Projetos</option>
+            <option value="Sugestões">✨ Sugestões</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirNovaDiscussao() {
+  const modal = new bootstrap.Modal(document.getElementById("modalNovaDiscussao"));
+  modal.show();
+}
+function abrirModalEditarTopico(id, titulo, conteudo, categoria) {
+  document.getElementById('form-editar-topico').action = `/forum/editar/${id}`;
+  document.getElementById('edit_titulo').value = titulo;
+  document.getElementById('edit_conteudo').value = conteudo;
+  document.getElementById('edit_categoria').value = categoria;
+  const modal = new bootstrap.Modal(document.getElementById("modalEditarTopico"));
+  modal.show();
+}
+function curtirTopico(topicoId) {
+  fetch(`/forum/curtir/${topicoId}`, { method: 'POST' })
+    .then(response => response.json())
+    .then(data => location.reload());
+}
+</script>
+{% endblock %}

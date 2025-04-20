@@ -1,97 +1,226 @@
 {% extends "base.html" %}
-
 {% block title %}Painel do Usuário - Meu Site IA{% endblock %}
 
 {% block content %}
-  <style>
-    .painel-user {
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    .painel-user h2 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+<style>
+  .painel-user {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .painel-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-bottom: 30px;
+  }
+  .painel-header img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #007bff;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+  .painel-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #333;
+  }
+  .info-box {
+    background: #f7f9fc;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+  }
+  .info-box h5 {
+    margin-bottom: 10px;
+    color: #007bff;
+  }
+  .info-box p, .info-box ul {
+    margin: 0 0 10px;
+    color: #333;
+  }
+  .info-box ul {
+    padding-left: 20px;
+  }
+  .info-box a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  .info-box a:hover {
+    text-decoration: underline;
+  }
+  .social-buttons a {
+    font-size: 20px;
+    margin-right: 15px;
+    color: #555;
+    text-decoration: none;
+  }
+  .social-buttons a:hover {
+    color: #007bff;
+  }
+  .painel-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .painel-actions a {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+    flex: 1 1 48%;
+    text-align: center;
+  }
+  .painel-actions a:hover {
+    background: #0056b3;
+  }
+  .sair {
+    display: block;
+    margin-top: 30px;
+    text-align: center;
+  }
+  .sair a {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .sair a:hover {
+    text-decoration: underline;
+  }
+  .medalhas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .medalhas span {
+    font-size: 1.4rem;
+  }
+</style>
 
-    .info-box {
-      background: #f7f9fc;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-    }
+<div class="painel-user">
+  <div class="painel-header">
+    <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}" alt="Foto de Perfil">
+    <h2>Olá, {{ usuario.nome.split(' ')[0] }}!</h2>
+  </div>
 
-    .info-box h5 {
-      margin-bottom: 10px;
-      color: #007bff;
-    }
+  <div class="info-box">
+    <h5>📧 Seu e-mail</h5>
+    <p>{{ usuario.email }}</p>
+  </div>
 
-    .info-box p {
-      margin: 0;
-      color: #333;
-    }
+  <div class="info-box">
+    <h5>📝 Biografia</h5>
+    <p>{{ usuario.biografia or "Você ainda não escreveu sua bio." }}</p>
+  </div>
 
-    .painel-actions {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-
-    .painel-actions a {
-      display: inline-block;
-      background: #007bff;
-      color: white;
-      padding: 12px 24px;
-      text-decoration: none;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      transition: background 0.3s ease;
-    }
-
-    .painel-actions a:hover {
-      background: #0056b3;
-    }
-
-    .sair {
-      display: block;
-      margin-top: 30px;
-      text-align: center;
-    }
-
-    .sair a {
-      color: #dc3545;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .sair a:hover {
-      text-decoration: underline;
-    }
-  </style>
-
-  <div class="painel-user">
-    <h2>👤 Olá, {{ usuario.nome.split(' ')[0] }}!</h2>
-
-    <div class="info-box">
-      <h5>📧 Seu e-mail</h5>
-      <p>{{ usuario.email }}</p>
-    </div>
-
-    <div class="painel-actions">
-      <a href="/ferramentas">🔍 Explorar Ferramentas</a>
-      <a href="/como-usar">📘 Ver Tutorial</a>
-      <a href="/favoritos">❤️ Ver Favoritos</a>
-      <a href="/perfil">⚙️ Editar Perfil</a>
-    </div>
-
-    <div class="sair">
-      <a href="/logout-user">🚪 Sair da Conta</a>
+  <div class="info-box">
+    <h5>🔗 Redes Sociais</h5>
+    <div class="social-buttons">
+      {% if usuario.linkedin %}<a href="{{ usuario.linkedin }}" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>{% endif %}
+      {% if usuario.instagram %}<a href="{{ usuario.instagram }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>{% endif %}
+      {% if usuario.github %}<a href="{{ usuario.github }}" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>{% endif %}
+      {% if not usuario.linkedin and not usuario.instagram and not usuario.github %}
+        <p>Nenhuma rede social cadastrada.</p>
+      {% endif %}
     </div>
   </div>
+
+  <div class="info-box">
+    <h5>🎓 Tipo de Usuário</h5>
+    <p>{{ "Professor" if usuario.tipo == "professor" else "Aluno" }}</p>
+  </div>
+
+  <div class="info-box">
+    <h5>📍 Localização</h5>
+    <p>{{ usuario.cidade or 'Não definida' }}, {{ usuario.estado or 'Não definida' }}</p>
+  </div>
+
+  <div class="info-box">
+    <h5>📅 Membro desde</h5>
+    <p>{{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</p>
+    <h5>🔑 Último acesso</h5>
+    <p>{{ usuario.ultimo_login.strftime('%d/%m/%Y às %H:%M') if usuario.ultimo_login else 'Nunca acessou' }}</p>
+  </div>
+
+  <div class="info-box">
+    <h5>🎯 Pontuação do Usuário</h5>
+    <p>{{ usuario.pontos or 0 }} pontos</p>
+    <div class="medalhas">
+      {% for medalha in usuario.medalhas %}
+        <span title="{{ medalha.nome }}">{{ medalha.icone }}</span>
+      {% endfor %}
+      {% if usuario.medalhas|length == 0 %}
+        <p>Sem medalhas conquistadas ainda.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="info-box">
+    <h5>📊 Atividades no sistema</h5>
+    <canvas id="graficoUso" style="width: 100%; max-height: 300px;"></canvas>
+  </div>
+
+  <div class="painel-actions">
+    <a href="/ferramentas">🔍 Explorar Ferramentas</a>
+    <a href="/como-usar">📘 Ver Tutorial</a>
+    <a href="/favoritos">❤️ Ver Favoritos</a>
+    <a href="/perfil">⚙️ Editar Perfil</a>
+  </div>
+
+  <div class="sair">
+    <a href="/logout-user">🚪 Sair da Conta</a>
+  </div>
+</div>
+
+<script>
+  async function carregarDadosUso() {
+    try {
+      const resposta = await fetch("/api/uso_usuario");
+      const dados = await resposta.json();
+
+      const ctx = document.getElementById("graficoUso").getContext("2d");
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dados.datas,
+          datasets: [{
+            label: 'Acessos por dia',
+            data: dados.acessos,
+            fill: true,
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0,123,255,0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    } catch (erro) {
+      console.error("Erro ao carregar dados de uso:", erro);
+      alert("⚠️ Não foi possível carregar os dados de uso.");
+    }
+  }
+  carregarDadosUso();
+</script>
 {% endblock %}

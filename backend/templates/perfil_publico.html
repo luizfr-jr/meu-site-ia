@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Perfil de {{ usuario.nome }} - Meu Site IA{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+  .perfil-container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 40px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+  .perfil-header {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  .perfil-header img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #007bff;
+  }
+  .perfil-info h2 {
+    margin-bottom: 5px;
+  }
+  .perfil-info p {
+    margin: 5px 0;
+    color: #555;
+  }
+  .social-icons a {
+    margin-right: 10px;
+    color: #007bff;
+    font-size: 1.2rem;
+  }
+  .tabs {
+    margin-top: 30px;
+  }
+  .nav-tabs .nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+  }
+  .atividade-item {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+  }
+  #grafico-evolucao {
+    max-height: 300px;
+  }
+</style>
+
+<div class="perfil-container">
+  <div class="perfil-header">
+    <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}" alt="Foto de Perfil">
+    <div class="perfil-info">
+      <h2>{{ usuario.nome }}</h2>
+      <p>{{ usuario.biografia or 'Sem biografia definida.' }}</p>
+      <div class="social-icons">
+        {% if usuario.linkedin %}<a href="{{ usuario.linkedin }}" target="_blank"><i class="fab fa-linkedin"></i></a>{% endif %}
+        {% if usuario.github %}<a href="{{ usuario.github }}" target="_blank"><i class="fab fa-github"></i></a>{% endif %}
+        {% if usuario.instagram %}<a href="{{ usuario.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}
+      </div>
+      {% if current_user.is_authenticated and current_user.id != usuario.id %}
+        <button id="seguir-btn" class="btn btn-sm">⭐</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <canvas id="grafico-evolucao"></canvas>
+
+  <div class="tabs">
+    <ul class="nav nav-tabs" id="perfilTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" id="topicos-tab" data-bs-toggle="tab" data-bs-target="#topicos" type="button" role="tab">Tópicos</button></li>
+      <li class="nav-item"><button class="nav-link" id="respostas-tab" data-bs-toggle="tab" data-bs-target="#respostas" type="button" role="tab">Respostas</button></li>
+      <li class="nav-item"><button class="nav-link" id="medalhas-tab" data-bs-toggle="tab" data-bs-target="#medalhas" type="button" role="tab">Medalhas</button></li>
+      <li class="nav-item"><button class="nav-link" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed" type="button" role="tab">Mini Feed</button></li>
+    </ul>
+    <div class="tab-content mt-3">
+      <div class="tab-pane fade show active" id="topicos" role="tabpanel">
+        {% for topico in topicos %}
+          <div class="atividade-item">
+            <a href="{{ url_for('ver_topico', id=topico.id) }}"><strong>{{ topico.titulo }}</strong></a>
+            <p class="text-muted">{{ topico.data_criacao.strftime('%d/%m/%Y') }}</p>
+          </div>
+        {% else %}<p class="text-muted">Nenhum tópico encontrado.</p>{% endfor %}
+      </div>
+      <div class="tab-pane fade" id="respostas" role="tabpanel">
+        {% for resposta in respostas %}
+          <div class="atividade-item">
+            <p>{{ resposta.conteudo }}</p>
+            <small class="text-muted">{{ resposta.criado_em.strftime('%d/%m/%Y') }}</small>
+          </div>
+        {% else %}<p class="text-muted">Nenhuma resposta encontrada.</p>{% endfor %}
+      </div>
+      <div class="tab-pane fade" id="medalhas" role="tabpanel">
+        {% for medalha in medalhas %}
+          <div class="atividade-item">
+            <strong>{{ medalha.icone }} {{ medalha.nome }}</strong>
+            <p class="text-muted">{{ medalha.descricao }}</p>
+          </div>
+        {% else %}<p class="text-muted">Nenhuma medalha conquistada.</p>{% endfor %}
+      </div>
+      <div class="tab-pane fade" id="feed" role="tabpanel">
+        {% for atividade in atividades %}
+          <div class="atividade-item">
+            <span>{{ atividade.descricao }}</span>
+            <small class="text-muted">({{ atividade.data }})</small>
+          </div>
+        {% else %}<p class="text-muted">Nenhuma atividade recente.</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const botao = document.getElementById("seguir-btn");
+    if (!botao) return;
+    const usuarioId = {{ usuario.id }};
+    let seguindo = {{ 'true' if current_user.is_authenticated and current_user.esta_seguindo(usuario) else 'false' }};
+
+    function atualizarTexto() {
+      botao.innerText = seguindo ? "⭐ Seguindo" : "⭐ Seguir";
+      botao.classList.toggle("btn-primary", !seguindo);
+      botao.classList.toggle("btn-outline-primary", seguindo);
+    }
+
+    atualizarTexto();
+
+    botao.addEventListener("click", () => {
+      fetch(`/seguir/${usuarioId}`, {
+        method: "POST"
+      })
+      .then(r => r.json())
+      .then(data => {
+        seguindo = data.seguindo;
+        atualizarTexto();
+      });
+    });
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('grafico-evolucao').getContext('2d');
+  fetch(`/api/evolucao_pontos/{{ usuario.id }}`)
+    .then(r => r.json())
+    .then(data => {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Evolução de Pontos',
+            data: data.data,
+            fill: false,
+            borderColor: '#007bff',
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Erro ao carregar gráfico:", err);
+    });
+</script>
+{% endblock %}
