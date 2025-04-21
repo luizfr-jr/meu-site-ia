@@ -14,3 +14,6 @@ scikit-learn==1.6.1
 joblib==1.4.2
 numpy==1.26.4
 gunicorn==21.2.0
+beautifulsoup4==4.12.3
+newspaper3k==0.2.8
+Pillow==10.3.0
