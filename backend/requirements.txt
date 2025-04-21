@@ -1,19 +1,39 @@
+# 🌐 Backend Flask
 Flask==3.1.0
 Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
 python-dotenv==1.1.0
 email_validator==2.2.0
 itsdangerous==2.2.0
 Werkzeug==3.1.3
 Jinja2==3.1.6
-SQLAlchemy==2.0.40
-requests==2.32.3
+
+# 🧠 Inteligência Artificial
 openai==1.75.0
 sentence-transformers==2.6.1
 huggingface_hub==0.16.4
 scikit-learn==1.6.1
 joblib==1.4.2
 numpy==1.26.4
-gunicorn==21.2.0
+
+# 🌐 Requisições, Web scraping e parsing
+requests==2.32.3
 beautifulsoup4==4.12.3
 newspaper3k==0.2.8
+lxml[html_clean]==5.2.1  # 💡 resolve erro crítico de import
+
+# 🔐 Segurança e autenticação
+smtplib3==0.3.3 ; sys_platform != 'linux'  # opcional para local — Render já usa smtplib nativo
+bcrypt==4.1.2
+
+# 🖼️ Imagem e manipulação de arquivos
 Pillow==10.3.0
+
+# 📈 Gráficos e geração de imagens
+matplotlib==3.8.4
+
+# 🔧 Web server
+gunicorn==21.2.0
+
+# 📦 Utilidades
+python-dateutil==2.9.0
