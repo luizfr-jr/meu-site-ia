@@ -1,226 +1,369 @@
 {% extends "base.html" %}
 {% block title %}Painel do Usuário - Meu Site IA{% endblock %}
 
-{% block content %}
+{% block extra_head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
+  /* Container principal */
   .painel-user {
     max-width: 900px;
-    margin: auto;
+    margin: 2rem auto;
     background: #fff;
-    padding: 40px;
-    border-radius: 12px;
+    padding: 2.5rem;
+    border-radius: 1rem;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   }
+  /* Cabeçalho */
   .painel-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin-bottom: 30px;
+    text-align: center;
+    margin-bottom: 2rem;
   }
   .painel-header img {
-    width: 120px;
-    height: 120px;
+    width: 120px; height: 120px;
     border-radius: 50%;
-    border: 3px solid #007bff;
+    border: 4px solid #0d6efd;
     object-fit: cover;
-    margin-bottom: 10px;
+    margin-bottom: .75rem;
   }
   .painel-header h2 {
-    margin: 0;
-    font-size: 1.8rem;
-    color: #333;
+    margin: 0; font-size: 1.9rem; color: #343a40;
   }
+  /* Alertas Premium / Upgrade */
+  .alert-premium { font-size:1.05rem; margin-bottom: 1.5rem; }
+  /* Info-boxes */
   .info-box {
-    background: #f7f9fc;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
+    background: #f8f9fa; padding: 1.25rem;
+    border-radius: .75rem; margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6; position: relative;
   }
   .info-box h5 {
-    margin-bottom: 10px;
-    color: #007bff;
+    margin-bottom: .75rem; color: #0d6efd; font-weight: 600;
   }
   .info-box p, .info-box ul {
-    margin: 0 0 10px;
-    color: #333;
+    margin: 0 0 .75rem; color: #495057; font-size: .95rem;
   }
-  .info-box ul {
-    padding-left: 20px;
+  .info-box ul { padding-left: 1.25rem; }
+  .info-box a { color: #0d6efd; text-decoration: none; }
+  .info-box a:hover { text-decoration: underline; }
+  .info-box.premium-locked { filter: grayscale(0.6); cursor: not-allowed; }
+  .info-box.premium-locked::after {
+    content: "🔒 Premium"; position: absolute;
+    top: .75rem; right: .75rem;
+    background: rgba(0,0,0,0.6); color: #fff;
+    padding: .25rem .5rem; border-radius: .25rem;
+    font-size: .75rem;
   }
-  .info-box a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  .info-box a:hover {
-    text-decoration: underline;
-  }
-  .social-buttons a {
-    font-size: 20px;
-    margin-right: 15px;
-    color: #555;
-    text-decoration: none;
-  }
-  .social-buttons a:hover {
-    color: #007bff;
-  }
+  /* Notificações */
+  .list-group-item { font-size: . ninerem; }
+  /* Progress XP */
+  .progress { height: 1.25rem; border-radius: .75rem; overflow: hidden; }
+  .progress-bar { font-size: . eightrem; line-height:1.25rem; }
+  /* Medalhas */
+  .medalhas { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.5rem; }
+  .medalhas span { font-size:1.8rem; cursor:help; }
+  /* Ações */
   .painel-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-    flex-wrap: wrap;
-    gap: 10px;
+    display:flex; flex-wrap:wrap; gap:.75rem;
+    justify-content:space-between; margin-top:2rem;
   }
   .painel-actions a {
-    display: inline-block;
-    background: #007bff;
-    color: white;
-    padding: 12px 24px;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background 0.3s ease;
-    flex: 1 1 48%;
-    text-align: center;
+    flex:1 1 48%; background:#0d6efd; color:#fff;
+    padding:.75rem; text-decoration:none; border-radius:.5rem;
+    text-align:center; transition:background .2s;
   }
-  .painel-actions a:hover {
-    background: #0056b3;
+  .painel-actions a:hover { background:#0b5ed7; }
+  /* Convidar amigo */
+  .invite-box { text-align:center; margin:2rem 0; }
+  .invite-box .btn { background:#ffc107; color:#212529; }
+  /* Logout */
+  .sair { text-align:center; margin-top:2rem; }
+  .sair a { color:#dc3545; font-weight:600; }
+  /* Streak */
+  .streak-container { display:flex; justify-content:space-between; }
+  .streak-day {
+    display:flex; flex-direction:column; align-items:center;
+    font-size:. eightrem;
   }
-  .sair {
-    display: block;
-    margin-top: 30px;
-    text-align: center;
+  .streak-circle {
+    width:2rem; height:2rem; border-radius:50%;
+    background:rgba(0,0,0,0.1); margin-bottom:.25rem;
+    transition:background-color .2s;
   }
-  .sair a {
-    color: #dc3545;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .sair a:hover {
-    text-decoration: underline;
-  }
-  .medalhas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .medalhas span {
-    font-size: 1.4rem;
+  .streak-circle.active { background:#20c997; }
+  /* Mobile */
+  @media (max-width:576px) {
+    .painel-actions a { flex:1 1 100%; }
   }
 </style>
+{% endblock %}
 
+
+{% block content %}
 <div class="painel-user">
+  <!-- Header -->
   <div class="painel-header">
-    <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}" alt="Foto de Perfil">
+    <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else
+                 url_for('static', filename='img/perfil_padrao.png') }}"
+         alt="Foto de Perfil">
     <h2>Olá, {{ usuario.nome.split(' ')[0] }}!</h2>
   </div>
 
+  <!-- Premium Alert / Upgrade -->
+  {% if usuario.premium %}
+    <div class="alert alert-success text-center alert-premium">
+      <strong>🌟 Você é PREMIUM!</strong><br>
+      Desde <strong>{{ usuario.data_premium and usuario.data_premium.strftime('%d/%m/%Y') or '---' }}</strong><br>
+      Continue acumulando pontos e desbloqueie conquistas!
+    </div>
+    <div class="text-center mb-4">
+      <a href="{{ url_for(usuario.tipo=='aluno' and 'painel_aluno' or 'painel_professor') }}"
+         class="btn btn-lg btn-primary">🎁 Meus Benefícios Premium</a>
+    </div>
+  {% else %}
+    <div class="alert alert-warning text-center alert-premium">
+      <strong>🌟 Quer mais recursos?</strong><br>
+      Faça upgrade para Premium e desbloqueie cursos, e‑books e gráficos avançados!<br><br>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalPremium">
+        🔓 Conheça os Benefícios
+      </button>
+    </div>
+  {% endif %}
+
+  <!-- Notificações -->
   <div class="info-box">
-    <h5>📧 Seu e-mail</h5>
-    <p>{{ usuario.email }}</p>
+    <h5>🔔 Notificações</h5>
+    <ul class="list-group mb-2">
+      {% for n in notificacoes_ultimas %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          {{ n.texto }}
+          <form method="post" action="{{ url_for('marcar_notificacao_lida', id=n.id) }}">
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Marcar como lida</button>
+          </form>
+        </li>
+      {% else %}
+        <li class="list-group-item text-muted">Nenhuma nova notificação.</li>
+      {% endfor %}
+    </ul>
   </div>
 
+  <!-- Ferramentas Favoritas -->
+  <div class="info-box">
+    <h5>❤️ Ferramentas Favoritas</h5>
+    {% set favs = usuario.favoritos.all() %}
+    {% for f in favs %}
+      <a href="{{ url_for('acessar_ferramenta', ferramenta_id=f.id) }}"
+         class="badge bg-success me-1">{{ f.nome }} <i class="fas fa-heart"></i></a>
+    {% endfor %}
+    {% if favs|length == 0 %}
+      <p class="text-muted mb-0">Nenhuma ferramenta favorita.</p>
+    {% endif %}
+  </div>
+
+  <!-- Nível / XP -->
+  <div class="info-box">
+    <h5>🔋 Nível {{ (usuario.pontos // 100) + 1 }}</h5>
+    {% set lvl_atual = (usuario.pontos // 100) * 100 %}
+    {% set prox = (usuario.pontos // 100 + 1) * 100 %}
+    {% set pct = ((usuario.pontos - lvl_atual)/(prox - lvl_atual))*100 %}
+    <div class="progress mb-2">
+      <div class="progress-bar bg-success" role="progressbar"
+           style="width:{{ pct }}%;" aria-valuenow="{{ pct }}"
+           aria-valuemin="0" aria-valuemax="100">
+        {{ usuario.pontos - lvl_atual }} / {{ prox - lvl_atual }} XP
+      </div>
+    </div>
+    <small class="text-muted">Total: {{ usuario.pontos or 0 }} pontos</small>
+  </div>
+
+  <!-- Dados Pessoais -->
+  <div class="info-box">
+    <h5>📧 E‑mail</h5>
+    <p>{{ usuario.email }}</p>
+  </div>
   <div class="info-box">
     <h5>📝 Biografia</h5>
     <p>{{ usuario.biografia or "Você ainda não escreveu sua bio." }}</p>
   </div>
-
   <div class="info-box">
     <h5>🔗 Redes Sociais</h5>
     <div class="social-buttons">
-      {% if usuario.linkedin %}<a href="{{ usuario.linkedin }}" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>{% endif %}
-      {% if usuario.instagram %}<a href="{{ usuario.instagram }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>{% endif %}
-      {% if usuario.github %}<a href="{{ usuario.github }}" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>{% endif %}
+      {% if usuario.linkedin %}
+        <a href="{{ usuario.linkedin }}" target="_blank" data-bs-toggle="tooltip" title="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      {% endif %}
+      {% if usuario.instagram %}
+        <a href="{{ usuario.instagram }}" target="_blank" data-bs-toggle="tooltip" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+      {% endif %}
+      {% if usuario.github %}
+        <a href="{{ usuario.github }}" target="_blank" data-bs-toggle="tooltip" title="GitHub">
+          <i class="fab fa-github"></i>
+        </a>
+      {% endif %}
       {% if not usuario.linkedin and not usuario.instagram and not usuario.github %}
-        <p>Nenhuma rede social cadastrada.</p>
+        <p class="text-muted mb-0">Nenhuma rede social cadastrada.</p>
       {% endif %}
     </div>
   </div>
-
   <div class="info-box">
     <h5>🎓 Tipo de Usuário</h5>
-    <p>{{ "Professor" if usuario.tipo == "professor" else "Aluno" }}</p>
+    <p>{{ usuario.tipo=='professor' and 'Professor' or 'Aluno' }}</p>
   </div>
-
   <div class="info-box">
     <h5>📍 Localização</h5>
     <p>{{ usuario.cidade or 'Não definida' }}, {{ usuario.estado or 'Não definida' }}</p>
   </div>
-
   <div class="info-box">
-    <h5>📅 Membro desde</h5>
+    <h5>📅 Membro Desde</h5>
     <p>{{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</p>
-    <h5>🔑 Último acesso</h5>
-    <p>{{ usuario.ultimo_login.strftime('%d/%m/%Y às %H:%M') if usuario.ultimo_login else 'Nunca acessou' }}</p>
+    <h5>🔑 Último Acesso</h5>
+    <p>{{ usuario.ultimo_login and usuario.ultimo_login.strftime('%d/%m/%Y às %H:%M') or 'Nunca acessou' }}</p>
   </div>
 
+  <!-- Gráfico de Desempenho (Premium) -->
+  <div class="info-box {% if not usuario.premium %}premium-locked{% endif %}">
+    <h5>📊 Gráfico de Desempenho</h5>
+    {% if usuario.premium %}
+      <img src="data:image/png;base64,{{ grafico_barras }}" alt="Gráfico de Barras" class="img-fluid mb-3">
+      <img src="data:image/png;base64,{{ grafico_pizza }}" alt="Gráfico de Pizza" class="img-fluid">
+    {% endif %}
+  </div>
+
+  <!-- Medalhas -->
   <div class="info-box">
-    <h5>🎯 Pontuação do Usuário</h5>
-    <p>{{ usuario.pontos or 0 }} pontos</p>
+    <h5>🏅 Medalhas</h5>
     <div class="medalhas">
-      {% for medalha in usuario.medalhas %}
-        <span title="{{ medalha.nome }}">{{ medalha.icone }}</span>
+      {% for m in usuario.medalhas[:3] %}
+        <span data-bs-toggle="tooltip" title="{{ m.nome }} – {{ m.descricao }}">
+          {{ m.icone }}
+        </span>
       {% endfor %}
+      {% if usuario.medalhas|length > 3 %}
+        <a href="{{ url_for('conquistas') }}" class="btn btn-sm btn-outline-secondary ms-2">
+          Ver todas…
+        </a>
+      {% endif %}
       {% if usuario.medalhas|length == 0 %}
-        <p>Sem medalhas conquistadas ainda.</p>
+        <p class="text-muted mb-0">Sem medalhas ainda.</p>
       {% endif %}
     </div>
   </div>
 
+  <!-- Sequência de Acessos -->
   <div class="info-box">
-    <h5>📊 Atividades no sistema</h5>
-    <canvas id="graficoUso" style="width: 100%; max-height: 300px;"></canvas>
+    <h5>📊 Sequência de Acessos</h5>
+    <p class="mb-2">Mantenha sua sequência diária!</p>
+    <div class="streak-container" id="streakContainer"></div>
   </div>
 
+  <!-- Ferramentas Rápidas -->
   <div class="painel-actions">
-    <a href="/ferramentas">🔍 Explorar Ferramentas</a>
-    <a href="/como-usar">📘 Ver Tutorial</a>
-    <a href="/favoritos">❤️ Ver Favoritos</a>
-    <a href="/perfil">⚙️ Editar Perfil</a>
+    <a href="{{ url_for('ferramentas') }}">🔍 Explorar Ferramentas</a>
+    <a href="{{ url_for('como_usar') }}">📘 Tutorial</a>
+    <a href="#" data-bs-toggle="modal" data-bs-target="#modalFavoritos">❤️ Favoritos</a>
+    <a href="{{ url_for('editar_perfil') }}">⚙️ Editar Perfil</a>
   </div>
 
+  <!-- Logout -->
   <div class="sair">
-    <a href="/logout-user">🚪 Sair da Conta</a>
+    <a href="{{ url_for('logout_usuario') }}">🚪 Sair da Conta</a>
+  </div>
+</div>
+
+<!-- Modal: Benefícios Premium -->
+<div class="modal fade" id="modalPremium" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">🌟 Benefícios Premium</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="mb-3">
+          <li>✅ Cursos exclusivos de IA na educação</li>
+          <li>✅ E‑books e artigos premium</li>
+          <li>✅ Gráficos avançados de desempenho</li>
+          <li>✅ Priorização no fórum e resumo automático</li>
+          <li>✅ Selo e conquistas especiais</li>
+        </ul>
+        <p>Dúvidas? <strong>kallebyevangelho03@gmail.com</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Favoritos -->
+<div class="modal fade" id="modalFavoritos" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">❤️ Meus Favoritos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {% set favs = usuario.favoritos.all() %}
+        {% if favs|length %}
+          <ul class="list-group">
+            {% for f in favs %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <img src="{{ f.imagem }}" alt="{{ f.nome }}" width="50" height="50" class="me-3 rounded">
+                  <div>
+                    <strong>{{ f.nome }}</strong><br>
+                    <small>{{ f.descricao[:100] }}{% if f.descricao|length>100 %}…{% endif %}</small>
+                  </div>
+                </div>
+                <div>
+                  <a href="{{ url_for('acessar_ferramenta', ferramenta_id=f.id) }}"
+                     class="btn btn-primary btn-sm me-2" target="_blank">Abrir</a>
+                  <form method="POST" action="{{ url_for('remover_favorito', ferramenta_id=f.id) }}"
+                        style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Remover</button>
+                  </form>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-center text-muted">Nenhuma ferramenta favorita.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-  async function carregarDadosUso() {
-    try {
-      const resposta = await fetch("/api/uso_usuario");
-      const dados = await resposta.json();
-
-      const ctx = document.getElementById("graficoUso").getContext("2d");
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: dados.datas,
-          datasets: [{
-            label: 'Acessos por dia',
-            data: dados.acessos,
-            fill: true,
-            borderColor: '#007bff',
-            backgroundColor: 'rgba(0,123,255,0.1)',
-            tension: 0.4
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
+  // Tooltips
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>
+    new bootstrap.Tooltip(el)
+  );
+  // Streak
+  document.addEventListener("DOMContentLoaded", () => {
+    fetch("/api/uso_usuario")
+      .then(r=>r.json())
+      .then(dados=>{
+        const cont = document.getElementById("streakContainer");
+        dados.datas.forEach((dia,i)=>{
+          const ok = dados.acessos[i]>0;
+          const day = document.createElement("div");
+          day.className="streak-day";
+          const circ = document.createElement("div");
+          circ.className="streak-circle "+(ok?"active":"inactive");
+          day.append(circ);
+          const lbl = document.createElement("span");
+          lbl.textContent=dia;
+          day.append(lbl);
+          cont.append(day);
+        });
       });
-    } catch (erro) {
-      console.error("Erro ao carregar dados de uso:", erro);
-      alert("⚠️ Não foi possível carregar os dados de uso.");
-    }
-  }
-  carregarDadosUso();
+  });
 </script>
 {% endblock %}

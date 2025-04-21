@@ -1,227 +1,218 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-bs-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>{% block title %}Meu Site IA{% endblock %}</title>
+  
+  <!-- Bootstrap 5 & Font Awesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
+  
   <style>
+    :root {
+      --primary: #007bff;
+      --light-bg: #f5f5f5;
+      --dark-bg: #121212;
+      --light-color: #212529;
+      --dark-color: #e1e1e1;
+      --transition: 0.3s;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-    }
-
-    header {
-      background-color: #007bff;
-      color: white;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    header h1 {
       margin: 0;
-      font-size: 24px;
+      background-color: var(--light-bg);
+      color: var(--light-color);
+      transition: background var(--transition), color var(--transition);
     }
-
-    .nav-links a {
-      margin-left: 20px;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      border: 1px solid transparent;
-      padding: 8px 16px;
-      border-radius: 20px;
-      transition: 0.3s;
+    [data-bs-theme="dark"] body {
+      background-color: var(--dark-bg);
+      color: var(--dark-color);
     }
-
-    .nav-links a:hover {
-      background-color: white;
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    .container {
-      max-width: 960px;
-      margin: auto;
-      background: white;
-      border-radius: 12px;
-      padding: 40px;
-      margin-top: 40px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      flex-grow: 1;
-    }
-
-    footer {
-      background: #f0f0f0;
-      padding: 30px 20px;
-      text-align: center;
-      font-size: 14px;
-      color: #555;
-      margin-top: auto;
-    }
-
-    .footer-content {
-      max-width: 960px;
-      margin: auto;
-    }
-
-    .footer-content a {
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    .footer-content a:hover {
-      text-decoration: underline;
-    }
-
-    .social-icons a {
-      margin: 0 10px;
-      font-size: 18px;
-      color: #444;
-    }
-
-    .social-icons a:hover {
-      color: #000;
-    }
-
-    .admin-link {
-      opacity: 0.4;
-      font-size: 13px;
-      display: block;
-      margin-top: 10px;
-    }
+    /* Navbar */
+    .navbar { padding: 0.75rem 1rem; }
+    .navbar-brand { font-weight: bold; }
+    .nav-link { transition: color var(--transition); }
+    .nav-link:hover { color: var(--primary) !important; }
+    .theme-toggle { cursor: pointer; font-size: 1.2rem; }
+    /* Notification */
+    #notificacao { position: fixed; top: 0; width: 100%; z-index: 1050; display: none; }
+    #notificacao.show { display: block; }
+    /* Main */
+    main { flex: 1; padding: 1.5rem 1rem; }
+    /* Footer */
+    footer { background: var(--light-bg); padding: 1rem 0; text-align: center; font-size: 0.9rem; margin-top: auto; }
+    [data-bs-theme="dark"] footer { background: #1a1a1a; }
+    .footer-content a { transition: color var(--transition); }
+    .footer-content a:hover { text-decoration: underline; }
+    /* Modals */
+    .modal.fade .modal-dialog { transform: translateY(-50px); transition: transform var(--transition);}    
+    .modal.fade.show .modal-dialog { transform: translateY(0); }
   </style>
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <!-- Notificação -->
+  <div id="notificacao" class="alert alert-info text-center mb-0" role="alert"></div>
 
-  <!-- HEADER UNIFICADO -->
-  <header>
-    <h1>🤖 Meu Site IA</h1>
-    <div class="nav-links">
-        <a href="/home-inteligente">🏠 Início</a>
-        <a href="/ferramentas">🧰 Ferramentas</a>
-        <a href="/forum">🗣️ Fórum</a>
-        <a href="/sobre">🔎 Sobre</a>
-        <a href="/como-usar">📘 Como Usar</a>
-      
-        {% if session.get('usuario_nome') %}
-          <a href="/painel">👤 {{ session['usuario_nome'].split(' ')[0] }}</a>
-        {% else %}
-          <a href="/login-user">🔓 Entrar / Cadastrar</a>
-        {% endif %}
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('home_inteligente') }}">
+        <i class="fas fa-robot"></i> Meu Site IA
+        {% if session.get('premium') %}<i class="fas fa-star text-warning"></i>{% endif %}
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('home_inteligente') }}">🏠 Início</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('ferramentas') }}">🧰 Ferramentas</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('forum') }}">🗣️ Fórum</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('sobre') }}">🔎 Sobre</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('como_usar') }}">📘 Como Usar</a></li>
+        </ul>
+        <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+          <li class="nav-item me-3">
+            <i id="btnTheme" class="fas fa-moon theme-toggle" title="Alternar tema"></i>
+          </li>
+          {% if session.get('usuario_nome') %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user"></i> {{ session['usuario_nome'].split(' ')[0] }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{{ url_for('painel_usuario') }}">Meu Perfil</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('editar_perfil') }}">Editar Perfil</a></li>
+              {% if session['tipo_usuario']=='professor' and session['premium'] %}
+                <li><a class="dropdown-item" href="{{ url_for('painel_professor') }}">Premium Professor</a></li>
+              {% elif session['tipo_usuario']=='aluno' and session['premium'] %}
+                <li><a class="dropdown-item" href="{{ url_for('painel_aluno') }}">Premium Aluno</a></li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="{{ url_for('logout_usuario') }}">🚪 Sair</a></li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('login_usuario') }}">🔓 Entrar / Cadastrar</a></li>
+          {% endif %}
+        </ul>
       </div>
-  </header>
+    </div>
+  </nav>
 
-  <!-- CONTEÚDO DINÂMICO -->
-  <main class="container py-5">
+  <!-- Conteúdo -->
+  <main class="container">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- RODAPÉ COMPLETO -->
+  <!-- Footer -->
   <footer>
     <div class="footer-content">
-      <div class="social-icons">
-        <a href="https://github.com/luizfr-jr" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://www.linkedin.com/in/luiz-fernando-rodrigues-j%C3%BAnior-65667938/" target="_blank"><i class="fab fa-linkedin"></i></a>
-        <a href="https://www.instagram.com/luizfr_jr/" target="_blank"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.tiktok.com/@luizfr.jr" target="_blank"><i class="fab fa-tiktok"></i></a>
+      <div class="mb-2">
+        <a href="https://github.com/luizfr-jr" target="_blank" class="me-3"><i class="fab fa-github"></i></a>
+        <a href="https://linkedin.com/in/..." target="_blank" class="me-3"><i class="fab fa-linkedin"></i></a>
+        <a href="https://instagram.com/..." target="_blank" class="me-3"><i class="fab fa-instagram"></i></a>
+        <a href="https://tiktok.com/..." target="_blank"><i class="fab fa-tiktok"></i></a>
       </div>
-      <p>Criado por Prof. Dr. Luiz Fernando Rodrigues Junior • Contato: <a href="mailto:luiz.fernando@ufn.edu.br">luiz.fernando@ufn.edu.br</a></p>
-      <p>
-        <a href="#" data-bs-toggle="modal" data-bs-target="#modalSobre">Sobre</a> |
-        <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacidade">Política de Privacidade</a> |
-        <a href="#" data-bs-toggle="modal" data-bs-target="#modalTermos">Termos de Uso</a> |
-        <a href="#" data-bs-toggle="modal" data-bs-target="#modalFAQ">FAQ</a> |
-        <a href="/login" class="admin-link">Acesso Administrativo</a>
+      <p class="mb-1">Criado por Prof. Dr. Luiz Fernando Rodrigues Junior • <a href="mailto:luiz.fernando@ufn.edu.br">luiz.fernando@ufn.edu.br</a></p>
+      <p class="small">
+        <a href="#modalSobre" data-bs-toggle="modal">Sobre</a> |
+        <a href="#modalPrivacidade" data-bs-toggle="modal">Privacidade</a> |
+        <a href="#modalTermos" data-bs-toggle="modal">Termos</a> |
+        <a href="#modalFAQ" data-bs-toggle="modal">FAQ</a> |
+        <a href="{{ url_for('login') }}" class="text-muted">Admin</a>
       </p>
-      <p>© 2025 Todos os direitos reservados.</p>
+      <p class="small mb-0">© 2025 Todos os direitos reservados.</p>
     </div>
   </footer>
 
-  <!-- MODAIS -->
+  <!-- Modais embutidos -->
+  <div class="modal fade" id="modalSobre" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Sobre</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-start">
+          <p>“Meu Site IA” é uma plataforma educacional gamificada para explorar ferramentas de Inteligência Artificial aplicadas ao ensino e aprendizagem.</p>
+          <p>Desenvolvido por Kalleby Estudante de Engenharia Biomédica e Prof. Dr. Luiz Fernando Rodrigues Junior.</p>
+          <p>Objetivo: democratizar o acesso à IA e estimular a participação colaborativa em projetos educacionais.</p>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="modal fade" id="modalPrivacidade" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Política de Privacidade</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body text-start">
-          <p><strong>Última atualização:</strong> 19 de abril de 2025</p>
-          <p>Esta política descreve como coletamos, usamos, armazenamos e protegemos os dados dos usuários da plataforma "Meu Site IA".</p>
-          <p><strong>Responsáveis:</strong> Kalleby Evangelho Mota (kallebyevangelho03@gmail.com) e Prof. Dr. Luiz Fernando Rodrigues Junior (luiz.fernando@ufn.edu.br).</p>
-          <p><strong>Coletamos:</strong> nome, e-mail (se fornecido), histórico de ferramentas, buscas, IPs, e interações voluntárias.</p>
-          <p><strong>Usamos para:</strong> personalização, estatísticas, segurança, sugestões e funcionalidades futuras.</p>
-          <p><strong>Cookies:</strong> apenas para fins funcionais e estatísticos.</p>
-          <p><strong>Seus direitos:</strong> revogar consentimento, solicitar dados ou exclusão via e-mail para Kalleby.</p>
+          <p><strong>Atualizado:</strong> 19 de abril de 2025</p>
+          <p>Coletamos nome, e-mail, histórico e interações.</p>
+          <p>Uso para personalização, estatísticas e segurança.</p>
+          <p>Cookies apenas para funções essenciais.</p>
+          <p>Contato: kallebyevangelho03@gmail.com</p>
         </div>
       </div>
     </div>
   </div>
-
   <div class="modal fade" id="modalTermos" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Termos de Uso</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body text-start">
-          <p>Ao utilizar este site, você concorda em usá-lo com responsabilidade, sem fins maliciosos e respeitando os demais usuários.</p>
-          <p>Este projeto é educacional e experimental. O uso indevido das ferramentas poderá resultar em bloqueio de acesso.</p>
-          <p>Futuramente poderemos incluir funcionalidades pagas, recursos premium e fóruns interativos.</p>
+          <p>Uso responsável e ético dos recursos.</p>
+          <p>Projeto educacional, sem garantias.</p>
+          <p>Abusos podem levar a bloqueio de acesso.</p>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- MODAL TERMOS DE USO E POLÍTICA DE PRIVACIDADE -->
-<div class="modal fade" id="modalPolitica" tabindex="-1" aria-labelledby="modalPoliticaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalPoliticaLabel">Termos de Uso e Política de Privacidade</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-        <div class="modal-body text-start" style="font-size: 14px;">
-          <p><strong>Última atualização:</strong> 19 de abril de 2025</p>
-          <p>Este site é mantido por Kalleby Evangelho Mota (kallebyevangelho03@gmail.com) e Prof. Dr. Luiz Fernando Rodrigues Junior (luiz.fernando@ufn.edu.br), com fins educacionais, sociais e científicos.</p>
-          <p>Coletamos dados básicos para melhorar sua experiência: nome, e-mail, histórico de navegação e buscas. Utilizamos cookies funcionais para identificar sessões e personalizar o uso.</p>
-          <p>Seus dados nunca são vendidos ou compartilhados com terceiros, salvo por obrigações legais ou auditorias acadêmicas. Você pode solicitar a exclusão dos dados a qualquer momento via e-mail para <strong>kallebyevangelho03@gmail.com</strong>.</p>
-          <p>O uso deste site implica aceitação destes termos. Futuramente, funcionalidades como fóruns, redes sociais e cursos pagos poderão ser implementadas.</p>
-          <p>Utilize a plataforma com responsabilidade e ética. Qualquer uso malicioso poderá resultar em bloqueio de acesso.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="modal fade" id="modalFAQ" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Perguntas Frequentes (FAQ)</h5>
+          <h5 class="modal-title">Perguntas Frequentes</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body text-start">
-          <p><strong>1. O site é gratuito?</strong><br>Sim, totalmente gratuito no momento.</p>
-          <p><strong>2. Quem pode usar?</strong><br>Estudantes, professores, desenvolvedores ou qualquer interessado em IA.</p>
-          <p><strong>3. Os dados são protegidos?</strong><br>Sim. Utilizamos medidas técnicas e éticas para garantir sua privacidade.</p>
-          <p><strong>4. Posso contribuir com o projeto?</strong><br>Sim! Envie um e-mail para kallebyevangelho03@gmail.com.</p>
+          <p><strong>1. É gratuito?</strong> Sim.</p>
+          <p><strong>2. Quem pode usar?</strong> Qualquer interessado em IA na educação.</p>
+          <p><strong>3. Dados protegidos?</strong> Sim, medidas técnicas e éticas.</p>
+          <p><strong>4. Contribuições?</strong> E-mail para kallebyevangelho03@gmail.com.</p>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Tema (light/dark)
+    const btnTheme = document.getElementById('btnTheme');
+    btnTheme.addEventListener('click', () => {
+      const html = document.documentElement;
+      const cur = html.getAttribute('data-bs-theme');
+      html.setAttribute('data-bs-theme', cur==='dark'?'light':'dark');
+      btnTheme.classList.toggle('fa-sun'); btnTheme.classList.toggle('fa-moon');
+    });
+    // Notificação
+    function showNotification(msg,type='info',time=3000){
+      const el=document.getElementById('notificacao');
+      el.textContent=msg; el.className=`alert alert-${type} show`;
+      setTimeout(()=>el.classList.remove('show'),time);
+    }
+  </script>
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>

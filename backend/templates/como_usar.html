@@ -2,65 +2,256 @@
 
 {% block title %}Como Usar - Meu Site IA{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+  body { font-family: Arial, sans-serif; }
+  .lead { font-size: 1.15rem; line-height: 1.5; }
+  h2, h3 { font-weight: 600; }
+
+  /* Passo a passo */
+  .step-card {
+    border-radius: .75rem;
+    transition: transform .2s, background .2s;
+    background: #fff;
+  }
+  .step-card:hover {
+    transform: translateY(-4px);
+    background: #e9f7ef;
+  }
+  .step-icon {
+    width: 3rem; height: 3rem;
+    border-radius: 50%;
+    background: #ffc107;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  /* Cartões de exemplo */
+  .example-card {
+    border-radius: .75rem;
+    transition: transform .2s, box-shadow .2s;
+    background: #fff;
+  }
+  .example-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  /* Comparativo Grátis vs Premium */
+  .compare-card {
+    border-radius: .75rem;
+    border: 1px solid #e2e8f0;
+    transition: transform .2s, box-shadow .2s;
+    background: #fff;
+  }
+  .compare-card.premium {
+    border-color: #20c997;
+  }
+  .compare-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .compare-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e2e8f0;
+    padding: .75rem 1rem;
+    text-align: center;
+    font-weight: 600;
+  }
+  .compare-header.premium { background: #e2f7f0; }
+
+  /* Funcionalidades */
+  .feature-item {
+    border-radius: .5rem; margin-bottom: .5rem;
+    background: #f8f9fa; padding: .75rem 1rem;
+    display: flex; align-items: center;
+    transition: background .2s;
+  }
+  .feature-item:hover { background: #e2e6ea; }
+  .feature-icon {
+    font-size: 1.4rem; color: #20c997; margin-right: .75rem;
+    flex-shrink: 0;
+  }
+
+  /* FAQ */
+  .accordion-button:not(.collapsed) {
+    background-color: #0d6efd; color: #fff;
+  }
+
+  /* Chamada Final */
+  .cta-badge {
+    font-size: .9rem;
+    background: #20c997;
+    color: #fff;
+    padding: .25rem .75rem;
+    border-radius: .5rem;
+    display: inline-block;
+    margin-bottom: .5rem;
+  }
+  .cta-text { font-size: 1.25rem; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-  <h2 class="mb-4 text-primary">📘 Como Usar o Meu Site IA</h2>
+<div class="container py-5">
 
-  <p class="lead">
-    O <strong>Meu Site IA</strong> é sua porta de entrada para o universo da inteligência artificial. Criado para facilitar a vida de quem busca produtividade, criatividade e inovação, ele conecta você às melhores ferramentas de IA do mundo — de forma simples, gratuita e inteligente.
-  </p>
-
-  <hr>
-
-  <h3 class="mt-4 text-success">🧭 Passo a Passo para Explorar</h3>
-  <ol>
-    <li><strong>Acesse a aba <span class="text-primary">Ferramentas</span></strong> no menu superior.</li>
-    <li>No campo <strong>“O que você quer fazer?”</strong>, digite sua necessidade (ex: <em>traduzir um PDF</em>, <em>gerar imagem</em>, <em>criar currículo</em>).</li>
-    <li>Use os <strong>filtros de categoria</strong> para refinar sua busca (Texto, Imagem, Voz, Programação, Educação, entre outras).</li>
-    <li>Clique em <strong>Buscar IA Ideal</strong> — nosso motor inteligente irá recomendar as 3 ferramentas mais adequadas com explicação personalizada.</li>
-    <li>Escolha uma opção e clique em <strong>Acessar</strong> para ser redirecionado ao site da ferramenta.</li>
-  </ol>
-
-  <p class="text-muted">✨ Dica: Use linguagem natural. Exemplo: “Quero transformar texto em voz com sotaque brasileiro”.</p>
-
-  <hr>
-
-  <h3 class="text-info mt-4">💡 Exemplos de Uso</h3>
-  <ul>
-    <li><strong>Estudantes:</strong> Criar resumos, corrigir redações, estudar com flashcards, simular entrevistas, aprender idiomas.</li>
-    <li><strong>Professores:</strong> Elaborar planos de aula, gerar conteúdos personalizados, criar quizzes e avaliações.</li>
-    <li><strong>Pesquisadores:</strong> Traduzir artigos, buscar papers, gerar referências, extrair resumos automáticos de PDFs.</li>
-    <li><strong>Profissionais:</strong> Automatizar tarefas, criar conteúdos para redes sociais, gerar apresentações, organizar cronogramas.</li>
-    <li><strong>Curiosos:</strong> Explorar o mundo da IA sem medo, com liberdade e propósito.</li>
-  </ul>
-
-  <hr>
-
-  <h3 class="text-warning mt-4">🔍 Funcionalidades Avançadas</h3>
-  <ul>
-    <li><strong>💬 Fórum Integrado:</strong> Interaja com outros usuários, compartilhe dicas e tire dúvidas.</li>
-    <li><strong>📊 Ranking Gamificado:</strong> Acumule pontos, conquiste medalhas e suba no ranking dos usuários mais ativos.</li>
-    <li><strong>👤 Perfil Personalizado:</strong> Edite sua bio, adicione redes sociais e acompanhe sua evolução com gráficos e histórico.</li>
-    <li><strong>⭐ Seguir Usuários:</strong> Acompanhe perfis inspiradores dentro da comunidade.</li>
-    <li><strong>🧠 Resumo com IA:</strong> Use inteligência artificial para resumir discussões e tópicos automaticamente.</li>
-  </ul>
-
-  <hr>
-
-  <h3 class="text-secondary mt-4">❓ Perguntas Frequentes</h3>
-  <ul>
-    <li><strong>Preciso pagar para usar?</strong><br>Não. Todas as ferramentas listadas têm versões gratuitas — o site é 100% aberto e sem fins lucrativos.</li>
-    <li><strong>Minhas buscas ficam salvas?</strong><br>Não. O site respeita sua privacidade e não armazena as buscas ou interações.</li>
-    <li><strong>Posso sugerir ferramentas novas?</strong><br>Sim! Em breve lançaremos um formulário de sugestões e você poderá indicar novas IAs.</li>
-    <li><strong>O site é seguro?</strong><br>Sim. Curamos manualmente todas as ferramentas e utilizamos apenas APIs confiáveis e abertas.</li>
-  </ul>
-
-  <hr>
-
-  <div class="text-center my-5">
-    <h4 class="fw-bold">🚀 Pronto para explorar?</h4>
-    <p class="text-muted">Comece agora mesmo sua jornada com inteligência artificial. É gratuito, fácil e surpreendente.</p>
-    <a href="/ferramentas" class="btn btn-primary btn-lg mt-3">Explorar Ferramentas</a>
+  <!-- Banner de introdução -->
+  <div class="card shadow-sm rounded-3 p-4 mb-5">
+    <h2 class="text-primary mb-2"><i class="fas fa-book-open me-2"></i>Como Usar o Meu Site IA</h2>
+    <p class="lead text-secondary">
+      Aqui você aprende em poucos passos a encontrar e usar ferramentas de IA de forma simples, 
+      gratuita e segura — sem complicação!
+    </p>
   </div>
+
+  <!-- Passo a Passo -->
+  <h3 class="text-success mb-4"><i class="fas fa-list-ol me-2"></i>Passo a Passo</h3>
+  <div class="row g-4 mb-5">
+    {% set passos = [
+      {"icon":"fas fa-tools","title":"Abra Ferramentas","desc":"Clique na aba Ferramentas no menu superior."},
+      {"icon":"fas fa-keyboard","title":"Defina Sua Busca","desc":"No campo “O que você quer fazer?”, digite sua necessidade."},
+      {"icon":"fas fa-filter","title":"Aplique Filtros","desc":"Use categorias (Texto, Imagem, Educação…) para refinar."},
+      {"icon":"fas fa-magic","title":"Busque Inteligente","desc":"Clique em Buscar IA Ideal para recomendações."},
+      {"icon":"fas fa-external-link-alt","title":"Acesse Ferramenta","desc":"Escolha e clique em Acessar para testar."}
+    ] %}
+    {% for p in passos %}
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card step-card h-100 shadow-sm">
+        <div class="card-body d-flex align-items-start">
+          <div class="step-icon me-3"><i class="{{ p.icon }}"></i></div>
+          <div>
+            <h5 class="fw-bold mb-1">{{ loop.index }}. {{ p.title }}</h5>
+            <p class="mb-0">{{ p.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Exemplos de Uso -->
+  <h3 class="text-info mb-4"><i class="fas fa-lightbulb me-2"></i>Exemplos de Uso</h3>
+  <div class="row g-4 mb-5">
+    {% set exemplos = [
+      {"icon":"fas fa-user-graduate","title":"Estudantes","itens":["Resumos rápidos","Flashcards","Chat de dúvidas"]},
+      {"icon":"fas fa-chalkboard-teacher","title":"Professores","itens":["Planos de aula","Quizzes interativos","Material personalizado"]},
+      {"icon":"fas fa-flask","title":"Pesquisadores","itens":["Resumos de artigos","Tradução de PDFs","Busca de referências"]},
+      {"icon":"fas fa-briefcase","title":"Profissionais","itens":["Automatizar tarefas","Conteúdos para redes","Organizar projetos"]}
+    ] %}
+    {% for ex in exemplos %}
+    <div class="col-6 col-md-3">
+      <div class="card example-card shadow-sm p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <i class="{{ ex.icon }} text-primary me-2" style="font-size:1.5rem;"></i>
+          <h6 class="mb-0 fw-bold">{{ ex.title }}</h6>
+        </div>
+        <ul class="list-group list-group-flush small">
+          {% for it in ex.itens %}
+            <li class="list-group-item">{{ it }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Comparativo Grátis × Premium -->
+  <h3 class="text-primary mb-4"><i class="fas fa-user-shield me-2"></i>Planos Disponíveis</h3>
+  <div class="row g-4 mb-5">
+    <!-- Gratuito -->
+    <div class="col-md-6">
+      <div class="card compare-card h-100 shadow-sm">
+        <div class="compare-header">🆓 Explorador IA</div>
+        <div class="card-body">
+          <p class="mb-2 text-muted"><em>Disponível para todos após login básico</em></p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">✅ Acesso a todas as ferramentas públicas</li>
+            <li class="list-group-item">🔍 Buscador inteligente com descrição</li>
+            <li class="list-group-item">🧩 Filtros por categoria</li>
+            <li class="list-group-item">🎲 Ferramenta aleatória</li>
+            <li class="list-group-item">🗣️ Acesso completo ao fórum</li>
+            <li class="list-group-item">📢 Criar e interagir em tópicos</li>
+            <li class="list-group-item">👤 Perfil com foto, nome e bio</li>
+            <li class="list-group-item">📅 Histórico de acessos</li>
+            <li class="list-group-item">👍 Curtidas e respostas</li>
+            <li class="list-group-item">🧠 Sugestões geradas por IA</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Premium -->
+    <div class="col-md-6">
+      <div class="card compare-card premium h-100 shadow-sm">
+        <div class="compare-header premium">🌟 Explorador IA PRO</div>
+        <div class="card-body">
+          <p class="mb-2 text-muted"><em>Acesso especial: professores, mentores e líderes</em></p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">🧠 IA explicativa personalizada</li>
+            <li class="list-group-item">🎓 Cursos exclusivos de IA</li>
+            <li class="list-group-item">📘 eBooks e artigos premium</li>
+            <li class="list-group-item">🏅 Medalhas e conquistas especiais</li>
+            <li class="list-group-item">📊 Gráficos avançados de desempenho</li>
+            <li class="list-group-item">🔐 Dashboard premium</li>
+            <li class="list-group-item">🧠 Resumo automático em threads</li>
+            <li class="list-group-item">🌟 Destaque em tópicos e respostas</li>
+            <li class="list-group-item">🎖️ Selo de membro premium</li>
+            <li class="list-group-item">👤 Perfil expandido com seguidores e XP</li>
+            <li class="list-group-item">📈 XP diário e gamificação</li>
+            <li class="list-group-item">💬 Acesso antecipado a novas ferramentas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Funcionalidades Avançadas -->
+  <h3 class="text-warning mb-4"><i class="fas fa-tools me-2"></i>Funcionalidades Avançadas</h3>
+  {% set avancadas = [
+    {"icon":"fas fa-comments","text":"Fórum integrado com IA"},
+    {"icon":"fas fa-trophy","text":"Ranking gamificado"},
+    {"icon":"fas fa-user-circle","text":"Perfil público e seguidores"},
+    {"icon":"fas fa-star","text":"Medalhas e conquistas"},
+    {"icon":"fas fa-brain","text":"Resumo automático das discussões"}
+  ] %}
+  {% for f in avancadas %}
+    <div class="feature-item mb-2">
+      <i class="{{ f.icon }} feature-icon"></i>
+      <div>{{ f.text }}</div>
+    </div>
+  {% endfor %}
+
+  <!-- FAQ -->
+  <h3 class="text-secondary mb-4"><i class="fas fa-question-circle me-2"></i>Perguntas Frequentes</h3>
+  <div class="accordion mb-5" id="faqAccordion">
+    {% set faqs = [
+      {"id":1,"q":"Preciso pagar para usar?","a":"Não. Usuários básicos têm acesso gratuito completo."},
+      {"id":2,"q":"Minhas buscas ficam salvas?","a":"Não. Respeitamos sua privacidade e não armazenamos buscas."},
+      {"id":3,"q":"Como sugiro novas IAs?","a":"Em breve haverá formulário de sugestões."},
+      {"id":4,"q":"O site é seguro?","a":"Sim. Curamos manualmente todas as ferramentas e usamos APIs confiáveis."}
+    ] %}
+    {% for faq in faqs %}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="faqHeading{{ faq.id }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ faq.id }}">
+          {{ faq.q }}
+        </button>
+      </h2>
+      <div id="faq{{ faq.id }}" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">{{ faq.a }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Call to Action -->
+  <div class="text-center mb-5">
+    <div class="cta-badge mb-2">🛡️ 100% Gratuito &amp; Seguro</div>
+    <h4 class="fw-bold cta-text mb-3">🚀 Comece sua jornada em IA agora mesmo!</h4>
+    <a href="{{ url_for('ferramentas') }}" class="btn btn-lg btn-primary">Explorar Ferramentas</a>
+  </div>
+
 </div>
 {% endblock %}

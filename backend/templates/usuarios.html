@@ -1,274 +1,251 @@
 {% extends "base.html" %}
 
-{% block title %}Gestão de Usuários - Meu Site IA{% endblock %}
+{% block title %}Super Painel de Controle - Meu Site IA{% endblock %}
 
 {% block content %}
+<!-- Dependências -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-  .container {
-    max-width: 960px;
-    margin: 40px auto;
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  }
+  /* Container principal */
+  .admin-container { max-width: 1400px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 1rem; box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.1); font-family: 'Segoe UI', Arial, sans-serif; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 2rem; }
+  .section-header h1 { font-size: 2rem; color: #0d6efd; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+  .actions-bar a, .bulk-actions button { display: inline-flex; align-items: center; gap: 0.3rem; background: #0d6efd; color: #fff; padding: 0.6rem 1.2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; transition: background 0.3s; font-size: 0.95rem; border: none; cursor: pointer; }
+  .actions-bar a:hover, .bulk-actions button:hover { background: #0b5ed7; }
 
-  h1, h2 {
-    text-align: center;
-    margin-bottom: 30px;
-  }
+  /* Filtros e Busca */
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+  .filter-bar input, .filter-bar select { padding: 0.6rem; border: 1px solid #ccc; border-radius: 0.5rem; font-size: 0.9rem; flex: 1; min-width: 160px; }
+  .filter-bar .btn-clear { background: #adb5bd; }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 40px;
-  }
+  /* Tabela de Usuários */
+  table.user-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+  table.user-table th, table.user-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e9ecef; vertical-align: middle; }
+  table.user-table th { background: #0d6efd; color: #fff; font-weight: 600; }
+  table.user-table tbody tr:hover { background: #f1f5f9; }
 
-  th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-  }
+  /* Badges de status */
+  .badge-status { display: inline-block; padding: 0.25em 0.5em; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 600; color: #fff; }
+  .badge-premium { background: #ffc107; color: #000; }
+  .badge-professor { background: #17a2b8; }
+  .badge-aluno { background: #6c757d; }
 
-  th {
-    background-color: #007bff;
-    color: white;
-  }
+  /* Ações na Tabela */
+  .table-actions a { margin-right: 0.5rem; color: #6c757d; font-size: 1rem; transition: color 0.3s; }
+  .table-actions a.edit:hover { color: #2ecc71; }
+  .table-actions a.delete:hover { color: #e74c3c; }
+  .table-actions a.toggle:hover { color: #20c997; }
 
-  .actions {
-    text-align: right;
-  }
+  /* Ações em massa */
+  .bulk-actions { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
 
-  .delete-button {
-    color: #e74c3c;
-    text-decoration: none;
-    font-size: 18px;
-    font-weight: bold;
-  }
+  /* Cards de Métricas */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .metric-card { background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; text-align: center; box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.05); }
+  .metric-card h3 { margin: 0; font-size: 1.2rem; color: #333; }
+  .metric-card p { font-size: 1.5rem; font-weight: 600; margin: 0.5rem 0 0; color: #0d6efd; }
 
-  .delete-button:hover {
-    text-decoration: underline;
-  }
+  /* Gráficos */
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+  .chart-container { background: #fff; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.05); }
 
-  .metricas {
-    margin: 40px 0;
-  }
+  /* Logs de Segurança */
+  .logs-section pre { background: #000; color: #0f0; padding: 1rem; border-radius: 0.5rem; max-height: 300px; overflow-y: auto; font-size: 0.8rem; }
 
-  .metricas h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #333;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 8px;
-  }
+  /* Voltar */
+  .back-link { text-align: center; margin-top: 2rem; }
+  .back-link a { color: #0d6efd; text-decoration: none; font-weight: 600; }
+  .back-link a:hover { text-decoration: underline; }
 
-  .metricas p {
-    font-size: 16px;
-    margin: 8px 0;
-    text-align: center;
-  }
-
-  .lista-metricas {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 0 20px;
-    list-style: none;
-  }
-
-  .lista-metricas li {
-    background: #f0f4ff;
-    padding: 10px 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 15px;
-    color: #333;
-    font-weight: 500;
-  }
-
-  pre {
-    background: #000;
-    color: #00ff99;
-    padding: 20px;
-    border-radius: 10px;
-    overflow-x: auto;
-    max-height: 400px;
-    font-size: 14px;
-  }
-
-  .voltar {
-    display: block;
-    margin-top: 30px;
-    text-align: center;
-  }
-
-  .voltar a {
-    background: #007bff;
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-  }
-
-  .voltar a:hover {
-    background: #0056b3;
-  }
-
-  .chart {
-    text-align: center;
-    margin-top: 30px;
-  }
-
-  .chart img {
-    max-width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
+  /* Foco visível */
+  a:focus, input:focus, button:focus, select:focus { outline: 3px solid #20c997; outline-offset: 2px; }
 </style>
 
-<div class="container">
-  <h1>Gestão de Usuários</h1>
-
-  {% if usuarios|length == 0 %}
-    <p style="text-align:center;">Nenhum administrador de acesso limitado registrado ainda.</p>
-  {% else %}
-    <h2>👥 Usuários Registrados</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Email</th>
-          <th class="actions">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in usuarios %}
-          <tr>
-            <td>{{ user.nome }}</td>
-            <td>{{ user.email }}</td>
-            <td class="actions">
-              <a href="{{ url_for('editar_usuario_comum', user_id=user.id) }}" class="delete-button">✏️</a>
-              <a href="{{ url_for('excluir_usuario_comum', user_id=user.id) }}" class="delete-button" onclick="return confirm('Deseja excluir este usuário?')">❌</a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
-
-  <div class="metricas">
-    <h2>👥 Usuários Comuns</h2>
-    {% if usuarios_comuns|length == 0 %}
-      <p style="text-align:center;">Nenhum usuário público registrado ainda.</p>
-    {% else %}
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th class="actions">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for u in usuarios_comuns %}
-            <tr>
-              <td>{{ u.nome }}</td>
-              <td>{{ u.email }}</td>
-              <td class="actions">
-                <a href="{{ url_for('excluir_usuario_comum', user_id=u.id) }}" class="delete-button" onclick="return confirm('Tem certeza que deseja excluir este usuário permanentemente?')">❌</a>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% endif %}
+<div class="admin-container">
+  <!-- Cabeçalho e Ações -->
+  <div class="section-header">
+    <h1><i class="fas fa-users-cog"></i> Super Painel de Controle</h1>
+    <div class="actions-bar">
+      <a href="#" onclick="exportCSV(); return false;"><i class="fas fa-file-csv"></i> Exportar CSV</a>
+      <a href="#logs" class="toggle-logs"><i class="fas fa-history"></i> Ver Logs</a>
+    </div>
   </div>
 
-  <div class="metricas">
-    <h2>📊 Análise de Usuários</h2>
-    <ul class="lista-metricas">
-      <li><span>Total de contas criadas</span><span>{{ usuarios_comuns|length }}</span></li>
-      <li><span>Média de acessos por usuário</span>
-        <span>
-          {% set total_acessos = usuarios_comuns | map(attribute='acessos_total') | sum %}
-          {{ (total_acessos // (usuarios_comuns|length if usuarios_comuns|length > 0 else 1)) }}
-        </span>
-      </li>
-      <li><span>Usuário mais ativo</span>
-        <span>
-          {% set mais_ativo = usuarios_comuns|sort(attribute='acessos_total', reverse=True)|first %}
-          {{ mais_ativo.nome }} ({{ mais_ativo.acessos_total }} acessos)
-        </span>
-      </li>
-      <li><span>Navegador mais comum</span>
-        <span>
-          {% set navegadores = {} %}
-          {% for u in usuarios_comuns %}
-            {% set navegador = u.navegador or "Desconhecido" %}
-            {% set _ = navegadores.update({navegador: navegadores.get(navegador, 0) + 1}) %}
-          {% endfor %}
-          {% set mais_comum = navegadores|dictsort(reverse=true)|first %}
-          {{ mais_comum[0] }} ({{ mais_comum[1] }})
-        </span>
-      </li>
-      <li><span>Dispositivo mais comum</span>
-        <span>
-          {% set dispositivos = {} %}
-          {% for u in usuarios_comuns %}
-            {% set dispositivo = u.dispositivo or "Desconhecido" %}
-            {% set _ = dispositivos.update({dispositivo: dispositivos.get(dispositivo, 0) + 1}) %}
-          {% endfor %}
-          {% set mais_comum = dispositivos|dictsort(reverse=true)|first %}
-          {{ mais_comum[0] }} ({{ mais_comum[1] }})
-        </span>
-      </li>
-    </ul>
+  <!-- Ações em Massa -->
+  <div class="bulk-actions">
+    <button onclick="bulkTogglePremium()"><i class="fas fa-gem"></i> Alternar Premium</button>
+    <button onclick="bulkAssignMedal()"><i class="fas fa-medal"></i> Conceder Medalha</button>
+    <button onclick="bulkDelete()"><i class="fas fa-trash-alt"></i> Excluir Selecionados</button>
+    <button onclick="bulkSuspend()"><i class="fas fa-user-slash"></i> Suspender</button>
   </div>
 
-  <div class="metricas">
-    <h2>📈 Métricas de Acesso</h2>
-    <p>Acessos totais: <strong>{{ total_index }}</strong></p>
-    <p>IPs únicos: <strong>{{ unique_index_ips }}</strong></p>
+  <!-- Filtros e Busca -->
+  <div class="filter-bar">
+    <input type="text" id="search" placeholder="Buscar nome, email..." oninput="filterTable()">
+    <select id="filter-type" onchange="filterTable()">
+      <option value="">Todos os Tipos</option>
+      <option value="aluno">Aluno</option>
+      <option value="professor">Professor</option>
+    </select>
+    <select id="filter-premium" onchange="filterTable()">
+      <option value="">Todos</option>
+      <option value="true">Premium</option>
+      <option value="false">Não Premium</option>
+    </select>
+    <button class="btn-clear" onclick="resetFilters()"><i class="fas fa-undo"></i> Limpar</button>
   </div>
 
-  <div class="metricas">
-    <h2>🔍 Perguntas Mais Frequentes</h2>
-    <ul class="lista-metricas">
-      {% for pergunta, count in perguntas_populares[:5] %}
-        <li><span>{{ pergunta }}</span><span>{{ count }}x</span></li>
+  <!-- Tabela de Usuários -->
+  <table class="user-table" id="userTable">
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Tipo</th>
+        <th>Premium</th>
+        <th>Posts</th>
+        <th>XP</th>
+        <th class="actions">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios_comuns %}
+      <tr>
+        <td><input type="checkbox" class="row-select" value="{{ u.id }}"></td>
+        <td>{{ u.nome }}</td>
+        <td>{{ u.email }}</td>
+        <td><span class="badge-status badge-{{ u.tipo }}">{{ u.tipo|capitalize }}</span></td>
+        <td>{% if u.premium %}<i class="fas fa-star text-warning"></i>{% else %}<i class="far fa-star text-muted"></i>{% endif %}</td>
+        <td>{{ u.topicos|length }} tópicos<br>{{ u.respostas|length }} respostas</td>
+        <td>{{ u.pontos }} XP</td>
+        <td class="table-actions">
+          <a href="#" onclick="togglePremium({{ u.id }}); return false;" title="Alternar Premium"><i class="fas fa-gem"></i></a>
+          <a href="#" onclick="openMedalModal({{ u.id }}); return false;" title="Conceder Medalha"><i class="fas fa-medal"></i></a>
+          <a href="#" onclick="viewPosts({{ u.id }}); return false;" title="Ver Posts"><i class="fas fa-clipboard-list"></i></a>
+          <a href="#" onclick="resetPassword({{ u.id }}); return false;" title="Reset Senha"><i class="fas fa-key"></i></a>
+          <a href="#" onclick="deleteUser({{ u.id }}); return false;" class="delete" title="Excluir"><i class="fas fa-trash-alt"></i></a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="text-center py-3">Nenhum usuário encontrado.</td></tr>
       {% endfor %}
-    </ul>
-    <p>📊 Média de buscas: <strong>{% set total = perguntas_populares | map(attribute=1) | sum %}{{ total // (perguntas_populares|length if perguntas_populares|length > 0 else 1) }}</strong></p>
+    </tbody>
+  </table>
+
+  <!-- Cards de Métricas -->
+  <div class="metrics-grid">
+    <div class="metric-card"><h3><i class="fas fa-users"></i> Total de Usuários</h3><p>{{ usuarios_comuns|length }}</p></div>
+    <div class="metric-card"><h3><i class="fas fa-star"></i> Premium</h3><p>{{ usuarios_comuns|selectattr('premium')|list|length }}</p></div>
+    <div class="metric-card"><h3><i class="fas fa-fire"></i> Usuários Ativos (7d)</h3><p>{{ ativos_7d }}</p></div>
+    <div class="metric-card"><h3><i class="fas fa-chart-line"></i> Média de Posts</h3><p>{{ media_posts }}</p></div>
   </div>
 
-  <div class="chart">
-    <img src="data:image/png;base64,{{ grafico_barras }}" alt="Perguntas mais frequentes">
+  <!-- Dashboards de Gráficos -->
+  <div class="charts">
+    <div class="chart-container"><canvas id="chartPosts"></canvas></div>
+    <div class="chart-container"><canvas id="chartXP"></canvas></div>
   </div>
 
-  <div class="metricas">
-    <h2>📚 Categorias Mais Buscadas</h2>
-    <ul class="lista-metricas">
-      {% for categoria, count in categorias_populares[:5] %}
-        <li><span>{{ categoria }}</span><span>{{ count }}x</span></li>
-      {% endfor %}
-    </ul>
+  <!-- Modal Conceder Medalha -->
+  <div class="modal fade" id="modalMedal" tabindex="-1" aria-labelledby="modalMedalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalMedalLabel">Conceder Medalha</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formMedal">
+            <input type="hidden" id="medalUserId">
+            <div class="mb-3">
+              <label for="medalSelect" class="form-label">Selecione a Medalha:</label>
+              <select id="medalSelect" class="form-select">
+                {% for m in medalhas_disponiveis %}
+                  <option value="{{ m.nome }}">{{ m.icone }} {{ m.nome }} ({{ m.pontos }} XP)</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="assignMedal()">Conceder</button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="chart">
-    <img src="data:image/png;base64,{{ grafico_pizza }}" alt="Categorias mais buscadas">
+  <!-- Logs de Segurança -->
+  <div id="logs" class="logs-section" style="display:none; margin-top:2rem;">
+    <h2><i class="fas fa-shield-alt"></i> Logs de Segurança</h2>
+    <pre>{% for linha in logs %}{{ linha }}{% endfor %}</pre>
   </div>
 
-  <h2 style="text-align: center;">🛡️ Logs de Segurança</h2>
-  <pre>
-{% for linha in logs %}
-{{ linha.strip() }}
-{% endfor %}
-  </pre>
-
-  <div class="voltar">
-    <a href="{{ url_for('dashboard') }}">← Voltar ao Painel</a>
+  <!-- Voltar -->
+  <div class="back-link">
+    <a href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left"></i> Voltar ao Painel</a>
   </div>
 </div>
+
+<script>
+  // Filtrar tabela
+  function filterTable() {
+    const search = document.getElementById('search').value.toLowerCase();
+    const type = document.getElementById('filter-type').value;
+    const premium = document.getElementById('filter-premium').value;
+    document.querySelectorAll('#userTable tbody tr').forEach(row => {
+      const cols = row.children;
+      const nome = cols[1].innerText.toLowerCase();
+      const email = cols[2].innerText.toLowerCase();
+      const tipo = cols[3].innerText.toLowerCase();
+      const isPremium = cols[4].querySelector('i').classList.contains('fa-star');
+      let show = true;
+      if (search && !(nome.includes(search) || email.includes(search))) show = false;
+      if (type && tipo !== type) show = false;
+      if (premium) {
+        if (premium === 'true' && !isPremium) show = false;
+        if (premium === 'false' && isPremium) show = false;
+      }
+      row.style.display = show ? '' : 'none';
+    });
+  }
+  function resetFilters() {
+    document.getElementById('search').value = '';
+    document.getElementById('filter-type').value = '';
+    document.getElementById('filter-premium').value = '';
+    filterTable();
+  }
+  function toggleSelectAll(cb) {
+    document.querySelectorAll('.row-select').forEach(ch => ch.checked = cb.checked);
+  }
+  function getSelected() {
+    return [...document.querySelectorAll('.row-select:checked')].map(ch => ch.value);
+  }
+  function bulkTogglePremium() { getSelected().forEach(id => togglePremium(id)); }
+  function bulkAssignMedal() { /* abre modal genérico */ assignMedal(); }
+  function bulkDelete() { getSelected().forEach(id => deleteUser(id)); }
+  function bulkSuspend() { /* implementação de suspensão */ alert('Função suspensão em desenvolvimento'); }
+
+  function exportCSV() { alert('Exportação CSV em desenvolvimento'); }
+  function togglePremium(id) { fetch(`/toggle_premium/${id}`).then(()=>location.reload()); }
+  function resetPassword(id) { fetch(`/admin/reset-password/${id}`, {method:'POST'}).then(()=>alert('Link de reset enviado')); }
+  function deleteUser(id) { if(confirm('Confirmar exclusão?')) fetch(`/excluir_usuario_comum/${id}`).then(()=>location.reload()); }
+  function openMedalModal(id) { new bootstrap.Modal(document.getElementById('modalMedal')).show(); document.getElementById('medalUserId').value = id; }
+  function assignMedal() {
+    const userId = document.getElementById('medalUserId').value;
+    const medal = document.getElementById('medalSelect').value;
+    fetch('/conceder_medalha', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({user_id:userId, medalha: medal}) })
+      .then(()=>{ alert('Medalha concedida'); location.reload(); });
+  }
+
+  // Gráficos
+  document.addEventListener('DOMContentLoaded', () => {
+    const dataPosts = {{ stats_posts|safe }};
+    const dataXP    = {{ stats_xp|safe }};
+    new Chart(document.getElementById('chartPosts'), { type: 'bar', data: dataPosts });
+    new Chart(document.getElementById('chartXP'),    { type: 'line', data: dataXP });
+    document.querySelector('.toggle-logs').addEventListener('click', e => { e.preventDefault(); const l=document.getElementById('logs'); l.style.display=l.style.display==='none'?'block':'none'; });
+  });
+</script>
+
 {% endblock %}

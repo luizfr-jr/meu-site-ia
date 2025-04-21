@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime
+from sqlalchemy import Enum
+from flask_login import UserMixin
 
 # Inicializa o SQLAlchemy
 db = SQLAlchemy()
@@ -11,7 +13,13 @@ seguidores = db.Table('seguidores',
     db.Column('seguido_id', db.Integer, db.ForeignKey('usuario.id'))
 )
 
-class Usuario(db.Model):
+# Tabela de relacionamento de favoritos
+favoritos = db.Table('favoritos',
+    db.Column('usuario_id', db.Integer, db.ForeignKey('usuario.id')),
+    db.Column('ferramenta_id', db.Integer, db.ForeignKey('ferramenta.id'))
+)
+
+class Usuario(UserMixin, db.Model):
     __tablename__ = 'usuario'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -30,9 +38,11 @@ class Usuario(db.Model):
     instagram = db.Column(db.String(255))
     github = db.Column(db.String(255))
     tipo = db.Column(db.String(50))  # aluno ou professor
+    premium = db.Column(db.Boolean, default=False)
     foto = db.Column(db.String(255))
     pontos = db.Column(db.Integer, default=0)
 
+    data_premium = db.Column(db.DateTime)
     topicos = db.relationship("Topico", backref="usuario", lazy=True)
     respostas = db.relationship("Resposta", backref="usuario", lazy=True)
     medalhas = db.relationship("MedalhaUsuario", backref="usuario", lazy=True)
@@ -47,6 +57,13 @@ class Usuario(db.Model):
         secondaryjoin=(seguidores.c.seguido_id == id),
         backref=db.backref('seguidores', lazy='dynamic'),
         lazy='dynamic'
+    )
+
+    favoritos = db.relationship(
+        "Ferramenta",
+        secondary=favoritos,
+        backref=db.backref("usuarios_favoritaram", lazy="dynamic"),
+        lazy="dynamic"
     )
 
     def atualizar_pontuacao(self, valor):

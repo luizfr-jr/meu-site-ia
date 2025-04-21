@@ -3,163 +3,252 @@
 {% block title %}Painel Administrativo - Meu Site IA{% endblock %}
 
 {% block content %}
-  <style>
-    .painel-container {
-      max-width: 800px;
-      margin: auto;
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    }
+<style>
+  /* Container Geral */
+  .painel-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  /* Cabeçalho do Painel */
+  .painel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .painel-header h1 {
+    font-size: 1.75rem;
+    color: #0d6efd;
+    margin: 0;
+  }
+  .painel-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #0d6efd;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+  }
+  .painel-actions a:hover {
+    background: #0b5ed7;
+  }
 
-    h1, h2 {
-      text-align: center;
-    }
+  /* Formulários */
+  .painel-form {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+    transition: background 0.3s;
+  }
+  .painel-form:hover {
+    background: #eef2f6;
+  }
+  .painel-form h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #444;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0.5rem rgba(13,110,253,0.3);
+  }
+  .form-group textarea { resize: vertical; min-height: 100px; }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+  /* Botões de formulário */
+  .btn-primary {
+    display: inline-block;
+    background: #0d6efd;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .btn-primary:hover {
+    background: #0b5ed7;
+    transform: translateY(-2px);
+  }
+  .btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0.5rem rgba(13,110,253,0.5);
+  }
 
-    input[type="text"],
-    input[type="url"],
-    textarea,
-    input[type="file"] {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
+  /* Lista de Ferramentas */
+  .lista {
+    margin-top: 2rem;
+  }
+  .card-tool {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+  }
+  .card-tool:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
+  }
+  .card-tool span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+  }
+  .card-actions a {
+    margin-left: 0.75rem;
+    color: #6c757d;
+    font-size: 1.25rem;
+    transition: color 0.3s;
+  }
+  .card-actions a[title="Editar"]:hover { color: #2ecc71; }
+  .card-actions a[title="Remover"]:hover { color: #e74c3c; }
 
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
+  /* Rodapé de links */
+  .painel-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  .painel-footer a {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .painel-footer a:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
+  }
 
-    button {
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      background: #007bff;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+  /* Acessibilidade: foco visível */
+  a:focus, button:focus, input:focus, textarea:focus {
+    outline: 3px solid #20c997;
+    outline-offset: 2px;
+  }
 
-    button:hover {
-      background: #0056b3;
-    }
+  /* Responsividade */
+  @media (max-width: 576px) {
+    .painel-header { flex-direction: column; gap: 0.5rem; }
+    .painel-actions a { width: 100%; justify-content: center; }
+  }
+</style>
 
-    .lista {
-      margin-top: 40px;
-    }
-
-    .card {
-      background: #f0f2f5;
-      padding: 16px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card span {
-      font-weight: 600;
-    }
-
-    .card a {
-      text-decoration: none;
-      font-size: 20px;
-    }
-
-    .card a[title="Editar"] {
-      color: #2ecc71;
-      margin-right: 12px;
-    }
-
-    .card a[title="Remover"] {
-      color: #e74c3c;
-    }
-
-    .logout {
-      display: block;
-      text-align: center;
-      margin-top: 40px;
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    .logout:hover {
-      text-decoration: underline;
-    }
-
-    .botao {
-      display: inline-block;
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border-radius: 20px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-
-    .botao:hover {
-      background: #0056b3;
-    }
-  </style>
-
-  <div class="painel-container">
-    <h1>Painel Administrativo</h1>
-
-    {% if ferramenta %}
-      <h2>Editando: {{ ferramenta.nome }}</h2>
-      <form method="POST" action="/editar_ferramenta/{{ ferramenta.id }}" enctype="multipart/form-data">
-        <input type="text" name="nome" placeholder="Nome da ferramenta" value="{{ ferramenta.nome }}" required>
-        <textarea name="descricao" placeholder="Descrição" required>{{ ferramenta.descricao }}</textarea>
-        <input type="url" name="link" placeholder="Link (https://...)" value="{{ ferramenta.link }}" required>
-        <input type="file" name="imagem">
-        <button type="submit">Salvar Alterações</button>
-      </form>
-      <hr>
-    {% else %}
-      <h2>Adicionar Nova Ferramenta</h2>
-      <form method="POST" action="/adicionar_ferramenta" enctype="multipart/form-data">
-        <input type="text" name="nome" placeholder="Nome da ferramenta" required>
-        <textarea name="descricao" placeholder="Descrição" required></textarea>
-        <input type="url" name="link" placeholder="Link (https://...)" required>
-        <input type="file" name="imagem" required>
-        <button type="submit">Adicionar IA</button>
-      </form>
-    {% endif %}
-
-    <div class="lista">
-      <h2>Ferramentas já cadastradas</h2>
-      {% for f in ferramentas %}
-      <div class="card">
-        <span>{{ f.nome }}</span>
-        <div>
-          <a href="/editar_ferramenta/{{ f.id }}" title="Editar">✏️</a>
-          <a href="/remover_ferramenta/{{ f.id }}" title="Remover">❌</a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
-    <a class="logout" href="/logout">Sair do Painel</a>
-
-    <div style="margin-top: 30px;">
-        <a href="/ferramentas" class="botao">🔙 Voltar para Ferramentas</a>
-        {% if session['user'] in ['admin', 'luiz'] %}
-          <br><br>
-          <a href="/usuarios" class="botao">👥 Gerenciar Usuários</a>
-          <br><br>
-          <a href="/noticias" class="botao">📰 Definir Notícia Curada</a>
-        {% endif %}
+<div class="painel-container">
+  <!-- Cabeçalho com todos os botões -->
+  <div class="painel-header">
+    <h1><i class="fas fa-tools"></i> Painel Administrativo</h1>
+    <div class="painel-actions">
+      <a href="{{ url_for('gerenciar_usuarios') }}"><i class="fas fa-users"></i> Usuários</a>
+      <a href="{{ url_for('gerenciar_noticias') }}"><i class="fas fa-newspaper"></i> Notícias</a>
+      <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a>
     </div>
   </div>
+
+  <!-- Formulário de Edição ou Adição -->
+  {% if ferramenta %}
+    <div class="painel-form">
+      <h2><i class="fas fa-edit"></i> Editando: {{ ferramenta.nome }}</h2>
+      <form method="POST" action="{{ url_for('editar_ferramenta', id=ferramenta.id) }}" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="nome">Nome da ferramenta</label>
+          <input type="text" id="nome" name="nome" value="{{ ferramenta.nome }}" required>
+        </div>
+        <div class="form-group">
+          <label for="descricao">Descrição</label>
+          <textarea id="descricao" name="descricao" required>{{ ferramenta.descricao }}</textarea>
+        </div>
+        <div class="form-group">
+          <label for="link">Link (https://...)</label>
+          <input type="url" id="link" name="link" value="{{ ferramenta.link }}" required>
+        </div>
+        <div class="form-group">
+          <label for="imagem">Imagem</label>
+          <input type="file" id="imagem" name="imagem">
+        </div>
+        <button type="submit" class="btn-primary">Salvar Alterações</button>
+      </form>
+    </div>
+  {% else %}
+    <div class="painel-form">
+      <h2><i class="fas fa-plus-circle"></i> Adicionar Nova Ferramenta</h2>
+      <form method="POST" action="{{ url_for('adicionar_ferramenta') }}" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="nome">Nome da ferramenta</label>
+          <input type="text" id="nome" name="nome" placeholder="Ex: ChatGPT" required>
+        </div>
+        <div class="form-group">
+          <label for="descricao">Descrição</label>
+          <textarea id="descricao" name="descricao" placeholder="Descreva a ferramenta..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="link">Link da ferramenta</label>
+          <input type="url" id="link" name="link" placeholder="https://" required>
+        </div>
+        <div class="form-group">
+          <label for="imagem">Imagem (PNG/JPG)</label>
+          <input type="file" id="imagem" name="imagem" required>
+        </div>
+        <button type="submit" class="btn-primary">Adicionar IA</button>
+      </form>
+    </div>
+  {% endif %}
+
+  <!-- Lista de Ferramentas -->
+  <div class="lista">
+    <h2><i class="fas fa-list"></i> Ferramentas Cadastradas</h2>
+    {% for f in ferramentas %}
+      <div class="card-tool">
+        <span>{{ f.nome }}</span>
+        <div class="card-actions">
+          <a href="{{ url_for('editar_ferramenta', id=f.id) }}" title="Editar"><i class="fas fa-edit"></i></a>
+          <a href="{{ url_for('remover_ferramenta', id=f.id) }}" title="Remover"><i class="fas fa-trash-alt"></i></a>
+        </div>
+      </div>
+    {% else %}
+      <p class="text-muted">Nenhuma ferramenta cadastrada.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Rodapé de Navegação -->
+  <div class="painel-footer">
+    <a href="{{ url_for('ferramentas') }}"><i class="fas fa-arrow-left"></i> Voltar para Ferramentas</a>
+  </div>
+</div>
 {% endblock %}

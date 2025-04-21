@@ -2,298 +2,181 @@
 
 {% block title %}Ferramentas de IA - Meu Site IA{% endblock %}
 
-{% block content %}
+{% block extra_head %}
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-  }
-
-  .search-top {
-    margin: 30px auto 10px;
+  /* Barra de busca e filtros modernizada */
+  .toolbar {
     display: flex;
-    justify-content: center;
-    gap: 10px;
     flex-wrap: wrap;
-    max-width: 1000px;
-  }
-
-  .search-top input {
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    width: 400px;
-    font-size: 15px;
-  }
-
-  .search-top button {
-    padding: 12px 24px;
-    border-radius: 8px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .search-top button:hover {
-    background-color: #0056b3;
-  }
-
-  .filtros-baixo {
-    display: flex;
+    gap: 1rem;
     justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-    margin-bottom: 30px;
+    margin: 2rem 0;
   }
-
-  .filtros-baixo select,
-  .filtros-baixo button {
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
+  .toolbar .input-group {
+    max-width: 500px;
+    flex: 1;
   }
-
-  .filtros-baixo button {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    font-weight: bold;
+  .toolbar .form-select {
+    max-width: 200px;
   }
-
-  .filtros-baixo button:hover {
-    background-color: #b02a37;
-  }
-
-  .tags-sugestoes {
-    text-align: center;
-    margin-bottom: 15px;
-  }
-
-  .tags-sugestoes button {
-    background-color: #f0f0f0;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 15px;
-    margin: 5px;
+  /* Chips de sugestão */
+  .chip {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    border-radius: 1rem;
+    background: #e9ecef;
     cursor: pointer;
-    font-size: 13px;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
   }
-
-  .tags-sugestoes button:hover {
-    background-color: #007bff;
-    color: white;
+  .chip.active,
+  .chip:hover {
+    background: var(--primary);
+    color: #fff;
   }
-
-  .cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    padding: 30px;
+  /* Cards */
+  #cards-container .col {
+    margin-bottom: 1.5rem;
   }
-
-  .card {
-    background: white;
-    border-radius: 10px;
-    padding: 25px 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s;
+  .tool-card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    height: 100%;
+    position: relative;
   }
-
-  .card:hover {
+  .tool-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
   }
-
-  .card.destaque {
-    border: 2px solid #007bff;
-    box-shadow: 0 0 20px rgba(0,123,255,0.3);
+  .tool-card.featured {
+    border: 2px solid var(--primary);
   }
-
-  .card img {
-    width: 100px;
-    height: 100px;
+  .badge-reco {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #17a2b8;
+    color: #fff;
+  }
+  .tool-card img {
+    max-height: 100px;
     object-fit: contain;
-    margin-bottom: 15px;
+    margin: 1rem auto 0;
   }
-
-  .card h2 {
-    margin: 0 0 10px;
-    font-size: 20px;
-    color: #333;
+  .tool-card .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
   }
-
-  .card p {
-    font-size: 14px;
-    color: #555;
-  }
-
-  .explicacao {
-    font-size: 13px;
-    color: #777;
-    margin-top: 10px;
-    font-style: italic;
-  }
-
-  .botao {
-    display: inline-block;
-    padding: 10px 20px;
-    margin-top: 15px;
-    background: #007bff;
-    color: white;
-    border-radius: 20px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-
-  .botao:hover {
-    background: #0056b3;
-  }
-
-  @media (max-width: 600px) {
-    .search-top input {
-      width: 100%;
-    }
+  .tool-card .btn-group {
+    margin-top: auto;
   }
 </style>
+{% endblock %}
 
-<div class="search-top">
-  <input type="text" id="busca-input" placeholder="O que você quer fazer com IA?" />
-  <button onclick="buscarIA()">Buscar IA</button>
+{% block content %}
+<div class="container py-4">
+  <!-- Search & Filter Toolbar -->
+  <div class="toolbar">
+    <div class="input-group">
+      <span class="input-group-text"><i class="fas fa-search"></i></span>
+      <input type="text" id="search-input" class="form-control" placeholder="O que você quer criar com IA?" onkeydown="if(event.key==='Enter') performSearch();" />
+      <button class="btn btn-primary" onclick="performSearch();"><i class="fas fa-arrow-right"></i></button>
+    </div>
+    <select id="category-select" class="form-select">
+      <option value="">Todas Categorias</option>
+      {% for cat in ['Texto','Imagem','Pesquisa','Tradução','Educação','Mapa Mental','Assistente'] %}
+      <option value="{{ cat|lower }}">{{ cat }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-outline-secondary" onclick="resetFilters();"><i class="fas fa-sync-alt"></i> Limpar</button>
+  </div>
+
+  <!-- Sugestões Inteligentes -->
+  <div class="text-center mb-4">
+    {% for sugestao in ['resumir texto','gerar imagem','traduzir','mapa mental','assistente'] %}
+    <span class="chip" onclick="applySuggestion('{{ sugestao }}')"># {{ sugestao }}</span>
+    {% endfor %}
+  </div>
+
+  <!-- Cards de Ferramentas -->
+  <div class="row" id="cards-container"></div>
 </div>
-
-<div class="filtros-baixo">
-  <select id="categoria-select">
-    <option value="">Todas as Categorias</option>
-    <option value="texto">Texto</option>
-    <option value="imagem">Imagem</option>
-    <option value="pesquisa">Pesquisa</option>
-    <option value="tradução">Tradução</option>
-    <option value="educação">Educação</option>
-    <option value="mapa mental">Mapa Mental</option>
-    <option value="assistente">Assistente</option>
-  </select>
-  <button onclick="limparBusca()">Limpar</button>
-</div>
-
-<div class="tags-sugestoes">
-  <strong>Dicas:</strong>
-  <button onclick="usarSugestao('resumir texto')">resumir texto</button>
-  <button onclick="usarSugestao('criar imagem')">criar imagem</button>
-  <button onclick="usarSugestao('traduzir PDF')">traduzir PDF</button>
-  <button onclick="usarSugestao('fazer mapa mental')">fazer mapa mental</button>
-  <button onclick="usarSugestao('gerar código')">gerar código</button>
-</div>
-
-<div class="cards-container" id="cards-container"></div>
 
 <script>
-  const categorias_keywords = {
-    "texto": ["redação", "escrever", "texto", "conteúdo"],
-    "imagem": ["imagem", "foto", "visual", "desenho"],
-    "pesquisa": ["pesquisa", "artigos", "científica", "estudo", "dados"],
-    "tradução": ["tradução", "traduzir", "idiomas", "línguas"],
-    "educação": ["estudos", "aprender", "educação", "ensino", "anotações"],
-    "mapa mental": ["mapa mental", "mapa", "diagramas", "visual", "fluxograma"],
-    "assistente": ["assistente", "ajuda", "conversa", "copiloto", "chat"]
-  };
+  const loggedIn = {{ 'true' if session.get('usuario_id') else 'false' }};
 
-  function renderCard(tool, isDestaque = false) {
+  function createCard(tool, featured=false) {
+    const col = document.createElement('div');
+    col.className = 'col-12 col-md-6 col-lg-4';
     const card = document.createElement('div');
-    card.className = isDestaque ? 'card destaque' : 'card';
+    card.className = 'card tool-card' + (featured ? ' featured' : '');
     card.innerHTML = `
-      <img src="${tool.imagem}" alt="${tool.nome}">
-      <h2>${tool.nome}</h2>
-      <p>${tool.descricao}</p>
-      ${tool.explicacao ? `<p class="explicacao">${tool.explicacao}</p>` : ''}
-      <a href="/acessar/${tool.id}" class="botao" target="_blank" rel="noopener">Acessar</a>
+      ${featured ? '<span class="badge badge-reco">✨ Recomendado</span>' : ''}
+      <img src="${tool.imagem}" alt="${tool.nome}" class="card-img-top">
+      <div class="card-body">
+        <h5 class="card-title">${tool.nome}</h5>
+        <p class="card-text text-truncate">${tool.descricao}</p>
+        ${tool.explicacao ? `<p class="text-muted small fst-italic">${tool.explicacao}</p>` : ''}
+        <div class="btn-group" role="group">
+          <a href="/acessar/${tool.id}" target="_blank" class="btn btn-primary"><i class="fas fa-play"></i> Acessar</a>
+          ${loggedIn ? `<button class="btn btn-success" onclick="favorite(${tool.id}, this)"><i class="fas fa-star"></i></button>` : ''}
+        </div>
+      </div>
     `;
-    return card;
+    col.appendChild(card);
+    return col;
   }
 
-  function carregarTodas() {
-    fetch('/api/ferramentas')
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById('cards-container');
-        container.innerHTML = '';
-        data.forEach(tool => container.appendChild(renderCard(tool)));
-      });
-  }
-
-  function buscarIA() {
-    const pergunta = document.getElementById('busca-input').value.trim();
-    const categoria = document.getElementById('categoria-select').value.trim();
+  function renderCards(list) {
     const container = document.getElementById('cards-container');
+    container.innerHTML = '';
+    list.forEach((tool, i) => container.appendChild(createCard(tool, i === 0)));
+  }
 
-    container.innerHTML = '<p><strong>🔎 Buscando IA...</strong></p>';
+  function loadAll() {
+    fetch('/api/ferramentas')
+      .then(r => r.json())
+      .then(data => renderCards(data));
+  }
 
-    if (!pergunta && categoria) {
-      fetch('/api/ferramentas')
-        .then(res => res.json())
-        .then(data => {
-          const palavrasChave = categorias_keywords[categoria] || [];
-          const filtradas = data.filter(ferramenta =>
-            palavrasChave.some(palavra => ferramenta.descricao.toLowerCase().includes(palavra))
-          );
-          container.innerHTML = '';
-          filtradas.forEach(tool => container.appendChild(renderCard(tool)));
-        });
-      return;
-    }
-
-    if (!pergunta && !categoria) {
-      return carregarTodas();
-    }
-
+  function performSearch() {
+    const q = document.getElementById('search-input').value.trim();
+    const cat = document.getElementById('category-select').value;
+    if (!q && !cat) { loadAll(); return; }
     fetch('/buscar_ia_local', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pergunta, categoria })
+      body: JSON.stringify({ pergunta: q, categoria: cat })
     })
-      .then(res => res.json())
-      .then(tools => {
-        container.innerHTML = '';
-        tools.forEach((tool, index) =>
-          container.appendChild(renderCard(tool, index === 0))
-        );
-      })
-      .catch(err => {
-        console.error('❌ Erro ao buscar IA:', err);
-        container.innerHTML = '<p>Erro ao buscar IA.</p>';
-        carregarTodas();
-      });
+      .then(r => r.json())
+      .then(data => renderCards(data));
   }
 
-  function usarSugestao(texto) {
-    document.getElementById('busca-input').value = texto;
-    buscarIA();
+  function applySuggestion(text) {
+    document.getElementById('search-input').value = text;
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.textContent.includes(text)));
+    performSearch();
   }
 
-  function limparBusca() {
-    document.getElementById('busca-input').value = '';
-    document.getElementById('categoria-select').value = '';
-    carregarTodas();
+  function resetFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('category-select').value = '';
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    loadAll();
   }
 
-  document.getElementById('busca-input').addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      buscarIA();
-    }
-  });
+  function favorite(id, btn) {
+    fetch(`/favoritar/${id}`, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => { if (d.status === 'ok') btn.disabled = true; });
+  }
 
-  carregarTodas();
+  document.addEventListener('DOMContentLoaded', () => { loadAll(); });
 </script>
 {% endblock %}

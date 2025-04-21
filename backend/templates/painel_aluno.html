@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}Área Premium do Aluno – Meu Site IA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; }
+  .premium-banner {
+    background: linear-gradient(90deg,#0d6efd,#20c997);
+    color: #fff;
+    border-radius: 1rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .premium-banner h2 { font-size: 2rem; margin-bottom: .5rem; }
+  .premium-banner p { font-size: 1.1rem; }
+  .premium-card {
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1);
+  }
+  .premium-card .card-body {
+    display: flex; flex-direction: column;
+  }
+  .premium-card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0d6efd;
+  }
+  .premium-card .card-text {
+    flex-grow: 1;
+    font-size: .95rem;
+    color: #444;
+    margin: .75rem 0;
+  }
+  .premium-card .btn {
+    border-radius: .5rem;
+  }
+  .stats-panel {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  .stats-panel h5 { font-weight: 600; color: #343a40; }
+  .stats-panel .stat {
+    display: inline-block;
+    margin: 1rem;
+  }
+  .stats-panel .stat i {
+    font-size: 2rem;
+    color: #20c997;
+    display: block;
+  }
+  .stats-panel .stat small {
+    display: block;
+    margin-top: .5rem;
+    color: #495057;
+  }
+  @media(max-width:576px){
+    .premium-card .btn { width:100% !important; }
+  }
+  .footer-cta {
+    text-align:center;
+    margin:3rem 0 1rem;
+    font-size:.95rem;
+  }
+  .footer-cta a { font-weight:600; color:#0d6efd; text-decoration:none; }
+  .footer-cta a:hover { text-decoration:underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Banner motivacional -->
+  <div class="premium-banner">
+    <h2>🚀 Sua conta premium está ativa!</h2>
+    <p>Prepare-se para aprender com superpoderes educacionais.</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- E-books -->
+    <div class="col-md-6">
+      <div class="card premium-card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-book-open me-2"></i>E‑books Inteligentes</h5>
+          <p class="card-text">
+            Baixe e estude com nossos e‑books interativos, cheios de dicas para otimizar seu aprendizado.
+          </p>
+          <a href="{{ url_for('pagina_ebooks') }}" class="btn btn-success mt-auto w-100" aria-label="Acessar E‑books">
+            Acessar E‑books
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini-Cursos -->
+    <div class="col-md-6">
+      <div class="card premium-card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-graduation-cap me-2"></i>Mini‑Cursos Personalizados</h5>
+          <p class="card-text">
+            Aprenda passo a passo com cursos rápidos sobre IA aplicada a estudos, resumos e produtividade.
+          </p>
+          <a href="/cursos" class="btn btn-success mt-auto w-100" aria-label="Ver Mini‑Cursos">
+            Ver Mini‑Cursos
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ferramentas -->
+    <div class="col-md-6">
+      <div class="card premium-card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-tools me-2"></i>Ferramentas Inteligentes</h5>
+          <p class="card-text">
+            Acesse mapas mentais, geradores de flashcards e simulados automáticos com IA.
+          </p>
+          <a href="{{ url_for('ferramentas') }}" class="btn btn-success mt-auto w-100" aria-label="Explorar Ferramentas">
+            Explorar Ferramentas
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Artigos -->
+    <div class="col-md-6">
+      <div class="card premium-card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-newspaper me-2"></i>Artigos sobre IA & Estudo</h5>
+          <p class="card-text">
+            Leia conteúdos sobre técnicas de estudo, ética em IA e dicas de foco desenvolvidas por especialistas.
+          </p>
+          <a href="{{ url_for('home_inteligente') }}" class="btn btn-success mt-auto w-100" aria-label="Ler Artigos">
+            Ler Artigos
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desafios Semanais -->
+    <div class="col-md-6">
+      <div class="card premium-card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Desafios Semanais</h5>
+          <p class="card-text">
+            Teste seus conhecimentos em desafios gamificados e ganhe XP extra a cada semana.
+          </p>
+          <a href="/desafios" class="btn btn-success mt-auto w-100" aria-label="Participar dos Desafios">
+            Participar Agora
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plano de Estudo -->
+    <div class="col-md-6">
+      <div class="card premium-card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Plano de Estudo com IA</h5>
+          <p class="card-text">
+            Crie cronogramas inteligentes adaptados ao seu ritmo de estudo. 
+          </p>
+          <button class="btn btn-outline-secondary mt-auto w-100" disabled aria-label="Em breve">
+            Em breve <span class="badge bg-secondary ms-1">coming soon</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estatísticas Gamificadas -->
+  <div class="stats-panel">
+    <div class="stat">
+      <i class="fas fa-star"></i>
+      <small>XP Total<br>{{ usuario.pontos or 0 }}</small>
+    </div>
+    <div class="stat">
+      <i class="fas fa-medal"></i>
+      <small>Medalhas<br>{{ usuario.medalhas|length }}</small>
+    </div>
+    <div class="stat">
+      <i class="fas fa-chart-line"></i>
+      <small>Evolução (7d)</small>
+    </div>
+  </div>
+  <canvas id="evolucaoChart" height="100"></canvas>
+
+  <!-- CTA Footer -->
+  <div class="footer-cta">
+    🌟 Quer sugerir uma nova funcionalidade?  
+    Participe do <a href="{{ url_for('forum') }}">fórum</a> ou envie sua ideia para  
+    <a href="mailto:kallebyevangelho03@gmail.com">kallebyevangelho03@gmail.com</a>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", ()=> {
+    // Gráfico de Evolução de Pontos
+    fetch(`/api/evolucao_pontos/{{ usuario.id }}`)
+      .then(res => res.json())
+      .then(data => {
+        const ctx = document.getElementById('evolucaoChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.labels.slice(-7),
+            datasets: [{
+              label: 'XP Diário',
+              data: data.data.slice(-7),
+              fill: false,
+              borderColor: '#0d6efd',
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      });
+  });
+</script>
+{% endblock %}

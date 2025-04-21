@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Editar Perfil - Meu Site IA{% endblock %}
 
-{% block content %}
+{% block extra_head %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 <style>
   .perfil-container {
     max-width: 700px;
@@ -14,24 +15,8 @@
   }
   .perfil-container h2 {
     text-align: center;
-    margin-bottom: 30px;
-  }
-  .form-group {
     margin-bottom: 20px;
-  }
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 6px;
-  }
-  .form-group input,
-  .form-group textarea,
-  .form-group select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 15px;
+    font-weight: 500;
   }
   .foto-preview {
     text-align: center;
@@ -41,123 +26,201 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    border: 3px solid #007bff;
+    border: 3px solid #0d6efd;
     object-fit: cover;
   }
+  .stats-followers {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 30px;
+    color: #495057;
+    font-size: 1rem;
+  }
+  .stats-followers i {
+    margin-right: .25rem;
+    color: #0d6efd;
+  }
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  .form-group label {
+    font-weight: 500;
+    margin-bottom: .5rem;
+    display: block;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+  hr { margin: 2rem 0; }
   .botoes {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 30px;
+    gap: 1rem;
+    margin-top: 2rem;
   }
-  .botoes button {
-    padding: 12px;
+  .botoes button, .botoes a {
     flex: 1;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
   }
   .btn-salvar {
-    background: #007bff;
-    color: white;
+    background: #0d6efd;
+    color: #fff;
   }
+  .btn-salvar:hover { background: #0b5ed7; }
   .btn-excluir {
     background: #dc3545;
-    color: white;
+    color: #fff;
   }
-  .btn-salvar:hover {
-    background: #0056b3;
-  }
-  .btn-excluir:hover {
-    background: #a72828;
+  .btn-excluir:hover { background: #b02a37; }
+  @media (max-width: 576px) {
+    .botoes { flex-direction: column; }
   }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="perfil-container">
+
   <h2>Editar Perfil</h2>
 
-  <!-- ✅ Imagem de perfil no topo -->
+  <!-- Imagem de perfil -->
   <div class="foto-preview">
-    <img id="preview-img" src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}" alt="Foto de perfil">
+    <img id="preview-img"
+         src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}"
+         alt="Foto de perfil" />
   </div>
 
-  <!-- ✅ Formulário de imagem -->
-  <form id="form-foto" action="{{ url_for('editar_perfil') }}" method="POST" enctype="multipart/form-data">
+  <!-- Estatísticas de seguidores -->
+  <div class="stats-followers">
+    <div><i class="fas fa-users"></i>{{ usuario.seguidores.count() }} seguidores</div>
+    <div><i class="fas fa-user-friends"></i>{{ usuario.seguindo.count() }} seguindo</div>
+  </div>
+
+  <!-- Botão para perfil público -->
+  <div class="text-center mb-4">
+    <a href="{{ url_for('perfil_publico', id=usuario.id) }}"
+       class="btn btn-outline-primary w-100">
+      <i class="fas fa-user"></i> Ver Perfil Público
+    </a>
+  </div>
+
+  <!-- Formulário de upload de foto -->
+  <form id="form-foto"
+        action="{{ url_for('editar_perfil') }}"
+        method="POST"
+        enctype="multipart/form-data">
     <div class="form-group">
-      <label for="foto">Nova Foto de Perfil</label>
-      <input type="file" id="foto" name="foto" accept="image/*">
+      <label for="foto">Alterar Foto de Perfil</label>
+      <input type="file" id="foto" name="foto" accept="image/*" aria-label="Nova foto de perfil">
     </div>
     <div class="botoes">
-      <button type="submit" class="btn-salvar">🖼️ Salvar Imagem</button>
+      <button type="submit" class="btn-salvar">
+        <i class="fas fa-image me-1"></i> Salvar Imagem
+      </button>
     </div>
   </form>
 
-  <!-- ✅ Formulário de dados -->
+  <hr>
+
+  <!-- Formulário de dados pessoais -->
   <form action="{{ url_for('editar_perfil') }}" method="POST">
     <div class="form-group">
-      <label for="nome">Nome</label>
-      <input type="text" id="nome" name="nome" value="{{ usuario.nome }}">
+      <label for="nome">Nome Completo</label>
+      <input type="text" id="nome" name="nome" value="{{ usuario.nome }}"
+             placeholder="Digite seu nome" required aria-label="Nome completo">
     </div>
+
     <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" value="{{ usuario.email }}" readonly>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" value="{{ usuario.email }}"
+             readonly aria-label="Email (não editável)">
     </div>
+
     <div class="form-group">
       <label for="nova_senha">Nova Senha</label>
-      <input type="password" id="nova_senha" name="nova_senha">
+      <input type="password" id="nova_senha" name="nova_senha"
+             placeholder="Deixe em branco para manter a senha atual" aria-label="Nova senha">
     </div>
+
     <div class="form-group">
       <label for="biografia">Biografia</label>
-      <textarea id="biografia" name="biografia" rows="4">{{ usuario.biografia or '' }}</textarea>
+      <textarea id="biografia" name="biografia" rows="4"
+                placeholder="Conte um pouco sobre você" aria-label="Biografia">{{ usuario.biografia or '' }}</textarea>
     </div>
+
     <div class="form-group">
       <label for="linkedin">LinkedIn</label>
-      <input type="url" id="linkedin" name="linkedin" value="{{ usuario.linkedin or '' }}">
+      <input type="url" id="linkedin" name="linkedin" value="{{ usuario.linkedin or '' }}"
+             placeholder="https://linkedin.com/in/seu-perfil" aria-label="LinkedIn">
     </div>
+
     <div class="form-group">
       <label for="instagram">Instagram</label>
-      <input type="url" id="instagram" name="instagram" value="{{ usuario.instagram or '' }}">
+      <input type="url" id="instagram" name="instagram" value="{{ usuario.instagram or '' }}"
+             placeholder="https://instagram.com/seu-perfil" aria-label="Instagram">
     </div>
+
     <div class="form-group">
       <label for="github">GitHub</label>
-      <input type="url" id="github" name="github" value="{{ usuario.github or '' }}">
+      <input type="url" id="github" name="github" value="{{ usuario.github or '' }}"
+             placeholder="https://github.com/seu-usuario" aria-label="GitHub">
     </div>
+
     <div class="form-group">
       <label for="tipo">Você é:</label>
-      <select id="tipo" name="tipo">
+      <select id="tipo" name="tipo" aria-label="Tipo de usuário">
         <option value="aluno" {% if usuario.tipo == 'aluno' %}selected{% endif %}>Aluno</option>
         <option value="professor" {% if usuario.tipo == 'professor' %}selected{% endif %}>Professor</option>
       </select>
     </div>
+
     <div class="botoes">
-      <button type="submit" class="btn-salvar">💾 Salvar Informações</button>
+      <button type="submit" class="btn-salvar">
+        <i class="fas fa-save me-1"></i> Salvar Alterações
+      </button>
     </div>
   </form>
 
-  <!-- ✅ Formulário de exclusão -->
+  <hr>
+
+  <!-- Exclusão de conta -->
   <form action="{{ url_for('excluir_conta') }}" method="POST" onsubmit="return confirmarExclusao();">
-    <button type="submit" class="btn-excluir">🗑️ Excluir Conta</button>
+    <button type="submit" class="btn-excluir w-100">
+      <i class="fas fa-user-slash me-1"></i> Excluir Conta
+    </button>
   </form>
 </div>
 
-<!-- ✅ Modal de feedback -->
-<div id="modal-feedback" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:white; color:black; border:2px solid #007bff; border-radius:10px; padding:20px; z-index:9999; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
+<!-- Feedback modal -->
+<div id="modal-feedback"
+     style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%);
+            background:#fff; border:2px solid #0d6efd; border-radius:10px;
+            padding:20px; z-index:9999; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
   <span id="modal-mensagem"></span>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
+  // Cropper para foto
   let cropper;
   const input = document.getElementById("foto");
   const preview = document.getElementById("preview-img");
-
   input.addEventListener("change", function () {
     const file = this.files[0];
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = e => {
         preview.src = e.target.result;
         if (cropper) cropper.destroy();
         cropper = new Cropper(preview, {
@@ -171,34 +234,35 @@
       reader.readAsDataURL(file);
     }
   });
-
   document.getElementById("form-foto").addEventListener("submit", function (e) {
     if (cropper) {
       e.preventDefault();
-      const canvas = cropper.getCroppedCanvas({ width: 150, height: 150 });
-      canvas.toBlob(blob => {
-        const container = new DataTransfer();
-        container.items.add(new File([blob], "imagem.webp", { type: "image/webp" }));
-        input.files = container.files;
+      cropper.getCroppedCanvas({ width: 150, height: 150 }).toBlob(blob => {
+        const dt = new DataTransfer();
+        dt.items.add(new File([blob], "perfil.webp", { type: "image/webp" }));
+        input.files = dt.files;
         this.submit();
       }, "image/webp", 0.85);
     }
   });
 
+  // Confirma exclusão
   function confirmarExclusao() {
     return confirm("Tem certeza que deseja excluir sua conta permanentemente?");
   }
 
+  // Flash messages
   window.onload = function () {
-    const mensagens = {{ get_flashed_messages(with_categories=true) | tojson }};
-    mensagens.forEach(([categoria, msg]) => {
+    const msgs = {{ get_flashed_messages(with_categories=true) | tojson }};
+    if (msgs.length) {
       const modal = document.getElementById("modal-feedback");
-      const mensagem = document.getElementById("modal-mensagem");
-      mensagem.textContent = msg;
+      const texto = document.getElementById("modal-mensagem");
+      const [cat, msg] = msgs[0];
+      texto.textContent = msg;
+      modal.style.borderColor = cat === "imagem_ok" ? "#20c997" : "#dc3545";
       modal.style.display = "block";
-      modal.style.borderColor = categoria === "imagem_ok" ? "#28a745" : "#dc3545";
       setTimeout(() => modal.style.display = "none", 4000);
-    });
+    }
   };
 </script>
 {% endblock %}

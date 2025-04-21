@@ -40,6 +40,10 @@ from models import db, Usuario, Topico, Resposta, CurtidaTopico, CurtidaResposta
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask import Blueprint, abort
 from models import Ferramenta
+from flask_login import current_user
+from flask_login import login_required, current_user
+from flask import render_template, redirect, url_for, flash
+
 # ✅ Carrega variáveis do .env logo no início
 load_dotenv()
 
@@ -57,7 +61,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # ✅ Inicializa o SQLAlchemy com o app
 db.init_app(app)
-
 # ✅ Inicializa demais instâncias
 serializer = URLSafeTimedSerializer(app.secret_key)
 modelo_ia = SentenceTransformer('all-MiniLM-L6-v2')
@@ -398,20 +401,40 @@ def registrar():
     return render_template("registrar.html")
 
 @app.route('/login-user', methods=['GET', 'POST'])
-def login_usuario_comum():
+def login_usuario():
     if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
-        senha = request.form.get('senha', '')
+        email = request.form['email'].strip().lower()
+        senha = request.form['senha']
 
         usuario = Usuario.query.filter_by(email=email).first()
         if usuario and check_password_hash(usuario.senha, senha):
-            session['usuario_id'] = usuario.id
+            login_user(usuario)  # <- ISSO AQUI FAZ A AUTENTICAÇÃO FUNCIONAR
+            # (mantém as outras atualizações de sessão que você usa)
+
             session['usuario_nome'] = usuario.nome
-            flash(f"Bem-vindo(a), {usuario.nome.split()[0]}!", "info")
-            return redirect(url_for("painel_usuario"))
+            session['usuario_id'] = usuario.id
+            session['usuario_email'] = usuario.email
+            session['tipo_usuario'] = usuario.tipo
+            session['premium'] = usuario.premium
 
-        flash("E-mail ou senha inválidos.", "danger")
+            # Atualização de métricas
+            usuario.ultimo_login = datetime.utcnow()
+            usuario.acessos_total += 1
+            usuario.navegador = request.user_agent.browser
+            usuario.dispositivo = request.user_agent.platform
 
+            try:
+                ip = request.remote_addr
+                cidade, estado = obter_localizacao_por_ip(ip)
+                usuario.cidade = cidade
+                usuario.estado = estado
+            except:
+                pass
+
+            db.session.commit()
+            return redirect(url_for('painel_usuario'))
+        else:
+            flash("E-mail ou senha inválidos.", "danger")
     return render_template("login_user.html")
 
 @app.route("/painel")
@@ -529,38 +552,7 @@ def excluir_usuario_comum(user_id):
     flash("Usuário excluído com sucesso.", "success")
     return redirect(url_for('gerenciar_usuarios'))
 
-@app.route('/login-user', methods=['GET', 'POST'])
-def login_usuario():
-    if request.method == 'POST':
-        email = request.form['email'].strip().lower()
-        senha = request.form['senha']
-
-        usuario = Usuario.query.filter_by(email=email).first()
-        if usuario and check_password_hash(usuario.senha, senha):
-            session['usuario_nome'] = usuario.nome
-            session['usuario_id'] = usuario.id
-            session['usuario_email'] = usuario.email
-
-            # Atualiza métricas de uso
-            usuario.ultimo_login = datetime.utcnow()
-            usuario.acessos_total += 1
-            usuario.navegador = request.user_agent.browser
-            usuario.dispositivo = request.user_agent.platform
-
-            # Geolocalização baseada no IP (usando IPInfo ou outro serviço externo se necessário)
-            try:
-                ip = request.remote_addr
-                cidade, estado = obter_localizacao_por_ip(ip)  # função fictícia, deve implementar API externa
-                usuario.cidade = cidade
-                usuario.estado = estado
-            except:
-                pass
-
-            db.session.commit()
-            return redirect(url_for('painel_usuario'))
-        else:
-            flash("E-mail ou senha inválidos.", "danger")
-    return render_template("login_user.html")
+\
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
@@ -1485,6 +1477,49 @@ def perfil_publico(id):
         pontos_grafico=pontos_grafico
     )
 
+@app.route("/favoritar/<int:id>", methods=["POST"])
+def favoritar(id):
+    if "usuario_id" not in session:
+        return jsonify({"status": "erro", "mensagem": "Você precisa estar logado."}), 401
+
+    usuario_id = session["usuario_id"]
+    usuario = Usuario.query.get_or_404(usuario_id)
+    ferramenta = Ferramenta.query.get_or_404(id)
+
+    # Crie o relacionamento de favoritos se ainda não existir
+    if not hasattr(usuario, "favoritos"):
+        flash("Modelo 'favoritos' ainda não implementado.", "danger")
+        return jsonify({"status": "erro", "mensagem": "Favoritos não ativado."}), 400
+
+    if ferramenta not in usuario.favoritos:
+        usuario.favoritos.append(ferramenta)
+        db.session.commit()
+
+    return jsonify({"status": "ok"})
+
+@app.route("/remover_favorito/<int:ferramenta_id>", methods=["POST"])
+def remover_favorito(ferramenta_id):
+    usuario_id = session.get("usuario_id")
+    if not usuario_id:
+        flash("Você precisa estar logado para remover favoritos.", "warning")
+        return redirect(url_for("login_usuario"))
+
+    usuario = Usuario.query.get(usuario_id)
+    ferramenta = Ferramenta.query.get_or_404(ferramenta_id)
+
+    if ferramenta in usuario.favoritos:
+        usuario.favoritos.remove(ferramenta)
+        db.session.commit()
+        flash("Removido dos seus favoritos!", "info")
+    
+    return redirect(url_for("painel_usuario"))
+
+from datetime import datetime
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.utcnow()}
+
 @app.route('/seguir/<int:id>', methods=['POST'])
 @login_required
 def seguir_usuario(id):
@@ -1500,6 +1535,131 @@ def seguir_usuario(id):
         current_user.seguir(usuario)
         db.session.commit()
         return jsonify({"seguindo": True})
+from flask_login import LoginManager
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Nome da sua rota de login
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Usuario.query.get(int(user_id))
+
+@app.route("/painel-premium")
+def painel_premium():
+    if not current_user.premium:
+        return redirect(url_for("painel_usuario"))
+
+    if current_user.tipo == "aluno":
+        return redirect(url_for("painel_aluno"))
+    elif current_user.tipo == "professor":
+        return redirect(url_for("painel_professor"))
+    else:
+        return redirect(url_for("painel_usuario"))
+
+@app.route("/painel-premium/<int:user_id>")
+def painel_premium_id(user_id):
+    usuario = Usuario.query.get(user_id)
+
+    if not usuario:
+        return "Usuário não encontrado.", 404
+
+    if not usuario.premium:
+        return redirect(url_for("painel_usuario"))  # Ou outra rota pública
+
+    if usuario.tipo == "aluno":
+        return render_template("painel_aluno.html", usuario=usuario)
+
+    if usuario.tipo == "professor":
+        return render_template("painel_professor.html", usuario=usuario)
+
+    return redirect(url_for("painel_usuario"))
+
+@app.route("/painel_aluno")
+@app.route("/painel_aluno/<int:user_id>")
+def painel_aluno(user_id=None):
+    if user_id:
+        usuario = Usuario.query.get_or_404(user_id)
+        if usuario.tipo != 'aluno' or not usuario.premium:
+            return "Acesso negado.", 403
+    else:
+        usuario_id = session.get("usuario_id")
+        if not usuario_id:
+            return redirect(url_for("login_usuario"))
+        usuario = Usuario.query.get(usuario_id)
+        if not usuario or usuario.tipo != 'aluno' or not usuario.premium:
+            return redirect(url_for("painel_usuario"))
+
+    return render_template("painel_aluno.html", usuario=usuario)
+
+@app.route("/painel_professor")
+@app.route("/painel_professor/<int:user_id>")
+def painel_professor(user_id=None):
+    if user_id:
+        usuario = Usuario.query.get_or_404(user_id)
+        if usuario.tipo != 'professor' or not usuario.premium:
+            return "Acesso negado.", 403
+    else:
+        usuario_id = session.get("usuario_id")
+        if not usuario_id:
+            return redirect(url_for("login_usuario"))
+        usuario = Usuario.query.get(usuario_id)
+        if not usuario or usuario.tipo != 'professor' or not usuario.premium:
+            return redirect(url_for("painel_usuario"))
+
+    return render_template("painel_professor.html", usuario=usuario)
+
+@app.route('/usuario/<int:user_id>/toggle_premium')
+def toggle_premium(user_id):
+    if 'user' not in session or session['user'] not in SUPER_ADMINS:
+        return "Acesso negado", 403
+
+    usuario = Usuario.query.get_or_404(user_id)
+    usuario.premium = not usuario.premium
+    db.session.commit()
+
+    flash(f"{'✅ Usuário agora é premium!' if usuario.premium else '❌ Premium removido com sucesso.'}", "info")
+    return redirect(url_for('gerenciar_usuarios'))
+
+@app.route('/admin/trocar-tipo', methods=['POST'])
+def trocar_tipo_usuario():
+    data = request.get_json()
+    user_id = data.get("user_id")
+
+    usuario = Usuario.query.get(user_id)
+
+    if not usuario:
+        return jsonify({'status': 'erro', 'mensagem': 'Usuário não encontrado'}), 404
+
+    # Trocar tipo
+    if usuario.tipo == "aluno":
+        usuario.tipo = "professor"
+    else:
+        usuario.tipo = "aluno"
+
+    db.session.commit()
+
+    return jsonify({'status': 'sucesso', 
+    'novo_tipo': usuario.tipo})
+
+EBOOK_FOLDER = os.path.join(os.path.dirname(__file__), 'ebooks')
+
+@app.route('/ebooks')
+def pagina_ebooks():
+    if not session.get('usuario_id') or not session.get('premium'):
+        flash("Acesso restrito a usuários premium.", "danger")
+        return redirect(url_for('painel_usuario'))
+
+    try:
+        arquivos = [f for f in os.listdir(EBOOK_FOLDER) if f.endswith('.pdf') or f.endswith('.epub')]
+    except FileNotFoundError:
+        arquivos = []
+
+    return render_template("ebooks.html", arquivos=arquivos)
+
+@app.route('/ebooks/<path:nome>')
+def baixar_ebook(nome):
+    return send_from_directory(EBOOK_FOLDER, nome, as_attachment=True)
 
 # ✅ Rota principal da home
 @app.route("/home-inteligente")

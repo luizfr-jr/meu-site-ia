@@ -2,51 +2,193 @@
 
 {% block title %}Sobre o Projeto - Meu Site IA{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+  /* Base */
+  body { font-family: Arial, sans-serif; background: #f8f9fa; color: #343a40; }
+  .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s ease forwards; }
+
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Container */
+  .about-container { max-width: 900px; margin: 3rem auto; padding: 0 1rem; }
+
+  /* Banner */
+  .about-banner {
+    background: linear-gradient(90deg, #0d6efdcc, #20c997cc);
+    color: #fff; border-radius: 1rem;
+    padding: 2rem; text-align: center; position: relative;
+    overflow: hidden; margin-bottom: 2.5rem;
+  }
+  .about-banner h1 { font-size: 2.25rem; font-weight: 700; }
+  .about-banner p { font-size: 1.1rem; margin-top: .5rem; }
+  .about-banner::after {
+    content: "🤖"; font-size: 6rem; opacity: .1;
+    position: absolute; bottom: .5rem; right: 1rem;
+  }
+
+  /* Section cards */
+  .section-card {
+    background: #fff; border-radius: 1rem; padding: 1.75rem;
+    margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    transition: transform .3s;
+  }
+  .section-card:hover { transform: translateY(-5px); }
+  .section-card h2 { color: #0d6efd; font-weight: 600; margin-bottom: 1rem; }
+
+  /* Mission & Vision row */
+  .mv-row .section-card { height: 100%; }
+
+  /* Values list */
+  .values-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap: 1rem; list-style: none; padding: 0;
+  }
+  .values-list li {
+    background: #fff; border-radius: .75rem; padding: .75rem 1rem;
+    display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    transition: background .2s, transform .2s;
+  }
+  .values-list li:hover { background: #e9f7ef; transform: translateY(-3px); }
+  .values-list .fa-icon {
+    font-size: 1.3rem; color: #20c997; margin-right: .75rem;
+    flex-shrink: 0;
+  }
+
+  /* Features grid */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap: 1rem; margin-top: 1rem;
+  }
+  .feature-card {
+    background: #fff; border-radius: .75rem;
+    padding: 1rem; display: flex; align-items: flex-start;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: background .2s, transform .2s;
+  }
+  .feature-card:hover { background: #e2e6ea; transform: translateY(-3px); }
+  .feature-card .fa-icon {
+    font-size: 1.6rem; color: #0d6efd; margin-right: .75rem;
+  }
+  .feature-text h5 { margin: 0 0 .25rem; font-weight: 600; }
+  .feature-text p { margin: 0; font-size: .925rem; color: #495057; }
+
+  /* Credits */
+  .credits-card {
+    background: #fff; border-radius: 1rem; text-align: center;
+    padding: 1.75rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .credits-card h2 { color: #0d6efd; margin-bottom: 1rem; }
+  .credits-list { list-style: none; padding: 0; margin: 0; }
+  .credits-list li { margin-bottom: .5rem; }
+  .credits-list a { color: #20c997; text-decoration: none; font-weight: 500; }
+  .credits-list a:hover { text-decoration: underline; }
+
+  /* Responsive tweaks */
+  @media (max-width: 576px) {
+    .about-banner h1 { font-size: 1.75rem; }
+    .values-list { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container text-start">
-  <h2 class="text-primary mb-4">Quem Somos</h2>
-  <p>
-    O <strong>Meu Site IA</strong> é uma plataforma educacional e comunitária que une tecnologia, educação e Inteligência Artificial de forma prática e acessível. Criado com o propósito de democratizar o uso da IA no Brasil, o projeto combina curadoria, personalização e interação para transformar a maneira como estudantes, educadores, pesquisadores e entusiastas exploram e aprendem com tecnologias inteligentes.
-  </p>
+<div class="about-container">
 
-  <h2 class="text-primary mt-4">Missão</h2>
-  <p>
-    Tornar a Inteligência Artificial uma ferramenta cotidiana para todos. Capacitar pessoas com recursos educativos, ferramentas úteis e uma comunidade ativa — promovendo conhecimento, inclusão e autonomia tecnológica.
-  </p>
+  <!-- Banner -->
+  <div class="about-banner fade-in">
+    <h1>Junte‑se à comunidade que está moldando o futuro com IA</h1>
+    <p>Conecte‑se, aprenda e compartilhe suas descobertas em um ambiente gamificado e colaborativo.</p>
+  </div>
 
-  <h2 class="text-primary mt-4">Visão</h2>
-  <p>
-    Ser a principal referência nacional em integração de IA com educação, inovação e colaboração aberta. Uma ponte entre usuários iniciantes e o universo das tecnologias de ponta.
-  </p>
+  <!-- Quem Somos -->
+  <div class="section-card fade-in">
+    <h2><i class="fas fa-users me-2"></i>Quem Somos</h2>
+    <p>
+      O <strong>Meu Site IA</strong> é uma plataforma educacional e comunitária que une tecnologia,
+      educação e Inteligência Artificial de forma prática e acessível. Criado para democratizar a
+      IA no Brasil, combina curadoria, personalização e interação para transformar como
+      estudantes, educadores e entusiastas exploram tecnologias inteligentes.
+    </p>
+  </div>
 
-  <h2 class="text-primary mt-4">Valores</h2>
-  <ul class="list-group list-group-flush mb-4">
-    <li class="list-group-item">📚 Educação acessível e contínua</li>
-    <li class="list-group-item">👥 Comunidade e protagonismo digital</li>
-    <li class="list-group-item">🔍 Curadoria ética e transparente</li>
-    <li class="list-group-item">💬 Compartilhamento de conhecimento</li>
-    <li class="list-group-item">🔒 Segurança, privacidade e confiança</li>
-  </ul>
+  <!-- Missão & Visão -->
+  <div class="row mv-row g-4 mb-4">
+    <div class="col-md-6 fade-in">
+      <div class="section-card">
+        <h2><i class="fas fa-bullseye text-success me-2"></i>Missão</h2>
+        <p>
+          Tornar a IA uma ferramenta cotidiana para todos, capacitando pessoas com recursos
+          educativos, ferramentas úteis e uma comunidade ativa — promovendo conhecimento,
+          inclusão e autonomia tecnológica.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6 fade-in">
+      <div class="section-card">
+        <h2><i class="fas fa-eye text-warning me-2"></i>Visão</h2>
+        <p>
+          Ser a principal referência nacional na integração de IA com educação, inovação e
+          colaboração aberta — conectando iniciantes ao universo das tecnologias de ponta.
+        </p>
+      </div>
+    </div>
+  </div>
 
-  <h2 class="text-primary mt-4">Funcionalidades</h2>
-  <p>Nosso site oferece um conjunto completo de recursos para todos os níveis de usuários:</p>
-  <ul class="list-group list-group-flush mb-4">
-    <li class="list-group-item">🤖 <strong>Buscador inteligente</strong> de IAs com explicação personalizada via IA generativa</li>
-    <li class="list-group-item">📊 <strong>Ranking de usuários</strong> com sistema de pontos, medalhas e evolução</li>
-    <li class="list-group-item">👥 <strong>Perfis públicos</strong> com biografia, redes sociais, gráficos de atividade e botão de seguir</li>
-    <li class="list-group-item">💬 <strong>Fórum colaborativo</strong> com tópicos, curtidas, respostas e resumo automático com IA</li>
-    <li class="list-group-item">🎖️ <strong>Medalhas e conquistas</strong> por participação ativa</li>
-    <li class="list-group-item">📈 <strong>Gráficos de desempenho</strong> gerados automaticamente</li>
-    <li class="list-group-item">📚 <strong>Home personalizada</strong> com dicas, IA em destaque, casos reais e notícias positivas sobre IA</li>
-    <li class="list-group-item">🔐 <strong>Dashboard administrativo</strong> com métricas, logs de acesso e ferramentas de gestão</li>
-  </ul>
+  <!-- Valores -->
+  <div class="section-card fade-in mb-5">
+    <h2><i class="fas fa-heart text-danger me-2"></i>Valores</h2>
+    <ul class="values-list mt-3">
+      <li><i class="fas fa-book fa-icon"></i>Educação acessível e contínua</li>
+      <li><i class="fas fa-user-friends fa-icon"></i>Comunidade e protagonismo digital</li>
+      <li><i class="fas fa-search fa-icon"></i>Curadoria ética e transparente</li>
+      <li><i class="fas fa-comments fa-icon"></i>Compartilhamento de conhecimento</li>
+      <li><i class="fas fa-lock fa-icon"></i>Segurança, privacidade e confiança</li>
+    </ul>
+  </div>
 
-  <h2 class="text-primary mt-4">Créditos e Colaboradores</h2>
-  <p>
-    O <strong>Meu Site IA</strong> foi idealizado por <strong>Kalleby Evangelho Mota</strong> e  <strong>Prof. Dr. Luiz Fernando Rodrigues Junior</strong>, contando com apoio institucional da <strong>Universidade Franciscana (UFN)</strong>.
-  </p>
-  <p>
-    A plataforma utiliza tecnologias modernas como <strong>Flask</strong>, <strong>OpenRouter API</strong>, <strong>SentenceTransformers</strong>, <strong>Chart.js</strong> e bibliotecas de visualização e autenticação para oferecer uma experiência completa e segura.
-  </p>
+  <!-- Funcionalidades -->
+  <div class="section-card fade-in mb-5">
+    <h2><i class="fas fa-cogs text-primary me-2"></i>Funcionalidades</h2>
+    <div class="features-grid mt-3">
+      {% set features = [
+        {"icon":"fas fa-robot","title":"Buscador Inteligente","desc":"Pesquisa de IAs com explicação personalizada."},
+        {"icon":"fas fa-trophy","title":"Ranking de Usuários","desc":"Sistema de pontos, medalhas e evolução gamificada."},
+        {"icon":"fas fa-user","title":"Perfis Públicos","desc":"Biografia, redes sociais e botões de seguir."},
+        {"icon":"fas fa-comments","title":"Fórum Colaborativo","desc":"Tópicos, curtidas, respostas e resumos IA."},
+        {"icon":"fas fa-medal","title":"Medalhas & Conquistas","desc":"Recompensas visuais por participação ativa."},
+        {"icon":"fas fa-chart-line","title":"Gráficos de Desempenho","desc":"Visualizações automáticas de progresso."},
+        {"icon":"fas fa-home","title":"Home Personalizada","desc":"Dicas, IA em destaque e notícias positivas."},
+        {"icon":"fas fa-tools","title":"Dashboard Admin","desc":"Métricas, logs de acesso e gestão segura."}
+      ] %}
+      {% for f in features %}
+      <div class="feature-card fade-in">
+        <i class="{{ f.icon }} fa-icon"></i>
+        <div class="feature-text">
+          <h5>{{ f.title }}</h5>
+          <p>{{ f.desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Créditos -->
+  <div class="credits-card fade-in">
+    <h2><i class="fas fa-handshake text-secondary me-2"></i>Créditos &amp; Colaboradores</h2>
+    <ul class="credits-list mt-3">
+      <li>Idealizado por <strong>Kalleby Evangelho Mota</strong> e <strong>Prof. Dr. Luiz Fernando Rodrigues Junior</strong></li>
+      <li>Apoio institucional: <strong>Universidade Franciscana (UFN)</strong></li>
+      <li>Tecnologias: Flask, OpenRouter API, SentenceTransformers, Chart.js, Bootstrap 5, Font Awesome 6</li>
+      <li>Design &amp; UX: Equipe <em>Meu Site IA</em></li>
+    </ul>
+  </div>
+
 </div>
 {% endblock %}

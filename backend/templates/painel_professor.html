@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}Área Premium do Professor – Meu Site IA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; }
+  .premium-banner {
+    background: linear-gradient(90deg,#0d6efd,#20c997);
+    color: #fff;
+    border-radius: 1rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .premium-banner h2 { font-size: 2rem; margin-bottom: .5rem; }
+  .premium-banner p { font-size: 1.1rem; }
+
+  .premium-card {
+    border-radius: 1rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,0.1);
+    transition: transform .2s;
+  }
+  .premium-card:hover { transform: translateY(-4px); }
+  .premium-card .card-body {
+    display: flex; flex-direction: column;
+  }
+  .premium-card .card-title {
+    font-size: 1.25rem; font-weight: 600; color: #0d6efd;
+  }
+  .premium-card .card-text {
+    flex-grow: 1; color: #444; margin: .75rem 0;
+  }
+  .premium-card .btn {
+    border-radius: .5rem;
+  }
+  @media(max-width:576px){
+    .premium-card .btn { width:100% !important; }
+  }
+
+  .stats-panel {
+    text-align: center; margin: 3rem 0 1rem;
+  }
+  .stats-panel .stat {
+    display: inline-block; margin: 0 1.5rem;
+  }
+  .stats-panel .stat i {
+    font-size: 1.8rem; color: #20c997;
+  }
+  .stats-panel .stat small {
+    display: block; margin-top: .5rem; color: #495057;
+  }
+
+  /* Tornando o canvas mais compacto */
+  #impactChart {
+    max-width: 300px;
+    max-height: 300px;
+    margin: 0 auto 2rem;
+    display: block;
+  }
+
+  .footer-cta {
+    text-align: center; margin: 2rem 0 1rem; font-size: .95rem;
+  }
+  .footer-cta a { font-weight: 600; color: #0d6efd; text-decoration: none; }
+  .footer-cta a:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- 1. Banner de boas‑vindas -->
+  <div class="premium-banner" role="banner">
+    <h2>✨ Bem‑vindo(a), Professor(a)! ✨</h2>
+    <p>Explore ferramentas, cursos e ideias que transformarão sua prática com a força da IA.</p>
+  </div>
+
+  <!-- 2. Cards de Recursos -->
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card premium-card h-100" role="region" aria-label="E‑books Inteligentes">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-book-open me-2"></i>E‑books Inteligentes</h5>
+          <p class="card-text">
+            Planeje aulas com IA, aprenda avaliação automatizada e metodologias ativas.
+          </p>
+          <a href="{{ url_for('pagina_ebooks') }}" class="btn btn-outline-primary mt-auto" aria-label="Ver E‑books">
+            Ver E‑books
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card premium-card h-100" role="region" aria-label="Mini Cursos de IA para Educação">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-video me-2"></i>Mini‑Cursos de IA</h5>
+          <p class="card-text">
+            Vídeos curtos e tutoriais práticos com certificação para uso em sala de aula.
+          </p>
+          <a href="#" class="btn btn-outline-primary mt-auto" aria-label="Ver Mini‑Cursos">
+            Ver Cursos
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card premium-card h-100" role="region" aria-label="Ferramentas Didáticas com IA">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-tools me-2"></i>Ferramentas Didáticas</h5>
+          <p class="card-text">
+            Jogos educacionais, simuladores e organizadores visuais que engajam seus alunos.
+          </p>
+          <a href="{{ url_for('ferramentas') }}" class="btn btn-outline-primary mt-auto" aria-label="Explorar Ferramentas">
+            Explorar Ferramentas
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card premium-card h-100" role="region" aria-label="Artigos & Pesquisas Aplicadas">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-newspaper me-2"></i>Artigos & Pesquisas</h5>
+          <p class="card-text">
+            Textos selecionados com aplicação pedagógica direta e ética no uso de IA.
+          </p>
+          <a href="#" class="btn btn-outline-primary mt-auto" aria-label="Ver Artigos">
+            Ver Artigos
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="card premium-card h-100" role="region" aria-label="Modelos de Planos de Aula">
+        <div class="card-body text-center">
+          <h5 class="card-title"><i class="fas fa-folder-open me-2"></i>Modelos de Plano de Aula</h5>
+          <p class="card-text">
+            Em breve: templates editáveis para seus planos com sugestões de IA.
+          </p>
+          <button class="btn btn-outline-secondary mt-auto" disabled aria-label="Em desenvolvimento">
+            🚧 Em desenvolvimento
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Gráfico de Impacto (menor agora) -->
+  <div class="stats-panel" role="region" aria-label="Gráfico de Impacto">
+    <div class="stat">
+      <i class="fas fa-chart-pie"></i>
+      <small>Impacto em Sala</small>
+    </div>
+  </div>
+  <canvas id="impactChart" width="300" height="300" aria-label="Gráfico de impacto da IA nas aulas"></canvas>
+
+  <!-- 4. Mensagem de Engajamento -->
+  <div class="footer-cta" role="contentinfo">
+    🚀 Inspire seus colegas!  
+    Envie seu caso real para <a href="mailto:kallebyevangelho03@gmail.com">kallebyevangelho03@gmail.com</a>  
+    ou compartilhe no <a href="{{ url_for('forum') }}">fórum premium</a>.
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded",()=> {
+    const ctx = document.getElementById('impactChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Interatividade','Eficiência','Engajamento'],
+        datasets: [{
+          data: [45,30,25],
+          backgroundColor: ['#0d6efd','#20c997','#ffc107']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  });
+</script>
+{% endblock %}

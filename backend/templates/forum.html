@@ -1,295 +1,273 @@
 {% extends "base.html" %}
+
 {% block title %}Fórum - Meu Site IA{% endblock %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* Animações */
+    @keyframes fadeInUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+    .fade-in { animation: fadeInUp 0.4s ease both; }
+
+    /* Container principal */
+    .forum-container { max-width: 1000px; margin: 2rem auto; padding: 1.5rem; }
+
+    /* Banner motivacional */
+    .forum-banner { background: linear-gradient(90deg, #007bffee, #20c997cc); color: #fff; padding: 1rem 1.5rem; border-radius: .75rem; margin-bottom: 1.5rem; }
+    .forum-banner h4 { margin: 0; font-weight: 600; }
+    .forum-banner p { margin: .25rem 0 0; font-size: .95rem; }
+
+    /* Botões primários e secundários */
+    .btn-create { background: #20c997; color: #fff; }
+    .btn-create:hover, .btn-create:focus { background: #17a589; color: #fff; }
+
+    .btn-like { font-size: 1rem; color: #888; transition: color .2s; cursor: pointer; }
+    .btn-like.liked { color: #dc3545; }
+    .btn-like:hover { color: #007bff; }
+
+    /* Cards de tópico */
+    .topic-card { border: 1px solid #e2e8f0; border-radius: .75rem; transition: box-shadow .3s; }
+    .topic-card:hover { box-shadow: 0 8px 20px rgba(0, 123, 255, 0.2); }
+    .topic-card .card-body { animation: fadeInUp 0.3s ease forwards; }
+    .topic-card .badge-cat { font-size: .75rem; padding: .35rem .6rem; border-radius: .5rem; text-transform: uppercase; }
+    .badge-hot { background: #e55353; }
+    .badge-Geral { background: #6c757d; }
+    .badge-Dúvidas\ Técnicas { background: #fd7e14; }
+    .badge-Projetos { background: #0d6efd; }
+    .badge-Sugestões { background: #20c997; }
+
+    /* Ranking e conquistas */
+    .stats-card { border-radius: .75rem; transition: transform .2s; }
+    .stats-card:hover { transform: translateY(-4px); }
+
+    /* Inputs e selects */
+    input:focus, select:focus { box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25); }
+
+    /* Títulos */
+    h2.section-title { font-weight: 600; color: #343a40; }
+  </style>
+{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-<style>
-  .forum-container {
-    max-width: 1000px;
-    margin: auto;
-    padding: 30px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  }
-  .forum-header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 25px;
-  }
-  .forum-header h2 {
-    margin: 0;
-    color: #007bff;
-    font-size: 1.8rem;
-  }
-  .forum-header .actions {
-    display: flex;
-    gap: 10px;
-  }
-  .forum-header .actions button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  .forum-header .actions button:hover {
-    background: #0056b3;
-  }
-  .search-bar input, .filters select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-  }
-  .filters {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-  }
-  .topic-card {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-left: 6px solid #007bff;
-    padding: 20px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    transition: background 0.3s ease;
-  }
-  .topic-card:hover {
-    background: #f0f8ff;
-  }
-  .topic-card h4 {
-    margin: 0 0 8px;
-  }
-  .topic-card p {
-    margin: 0;
-    color: #555;
-  }
-  .topic-meta {
-    font-size: 0.85rem;
-    color: #888;
-    margin-top: 8px;
-  }
-  .resumo-ia {
-    background: #eef9ff;
-    border-left: 4px solid #17a2b8;
-    padding: 10px;
-    font-style: italic;
-    font-size: 0.9rem;
-    margin-top: 10px;
-  }
-  .badge {
-    background: gold;
-    color: #333;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 0.8rem;
-    margin-left: 10px;
-  }
-  .like-btn {
-    color: #007bff;
-    cursor: pointer;
-    margin-left: 10px;
-  }
-  .medalha-icone {
-    margin-left: 5px;
-    font-size: 1rem;
-  }
-  .ranking-conquistas-box {
-    display: flex;
-    gap: 20px;
-    margin: 40px 0 20px;
-    flex-wrap: wrap;
-  }
-  .ranking, .conquistas {
-    flex: 1;
-    background: #f8f9fa;
-    border: 1px solid #ccc;
-    padding: 15px;
-    border-radius: 10px;
-  }
-  .ranking ul, .conquistas ul {
-    padding-left: 20px;
-  }
-</style>
+<div class="container forum-container">
 
-<div class="forum-container">
-  <div class="forum-header">
-    <h2>🧐  Fórum Inteligente</h2>
-    <div class="actions">
-      <button onclick="abrirNovaDiscussao()">➕ Nova Discussão</button>
+  <!-- Banner motivacional -->
+  <div class="forum-banner text-center mb-4">
+    <h4>🚀 Impulsione sua Aprendizagem!</h4>
+    <p>Participe das discussões, troque ideias e conquiste novas vitórias no fórum IA.</p>
+  </div>
+
+  <!-- Título -->
+  <h2 class="section-title mb-4 text-center">🧐 Fórum Inteligente</h2>
+
+  <!-- Barra de busca, filtros e Nova Discussão -->
+  <div class="row g-3 mb-5 align-items-center">
+    <div class="col-12 col-md-5 col-lg-4">
+      <div class="input-group shadow-sm rounded">
+        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+        <input id="busca-topico" type="text" class="form-control border-start-0" placeholder="Buscar tópicos..." oninput="atualizarForum()">
+      </div>
     </div>
-    <div class="search-bar">
-      <input type="text" id="busca-topico" placeholder="🔍 Buscar tópicos, termos, autores...">
+    <div class="col-6 col-md-3 col-lg-2">
+      <select id="filtro-categoria" class="form-select shadow-sm" onchange="atualizarForum()">
+        <option value="">Todas Categorias</option>
+        <option value="Geral">Geral</option>
+        <option value="Dúvidas Técnicas">Dúvidas Técnicas</option>
+        <option value="Projetos">Projetos</option>
+        <option value="Sugestões">Sugestões</option>
+      </select>
+    </div>
+    <div class="col-6 col-md-2 col-lg-2">
+      <select id="filtro-ordem" class="form-select shadow-sm" onchange="atualizarForum()">
+        <option value="recentes">Mais Recentes</option>
+        <option value="populares">Mais Populares</option>
+        <option value="sem-resposta">Sem Resposta</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-2 text-center text-md-end">
+      <button class="btn btn-create w-100 w-md-auto" onclick="abrirNovaDiscussao()">
+        <i class="fas fa-plus-circle me-1"></i> Nova Discussão
+      </button>
     </div>
   </div>
 
-  <div class="filters">
-    <select id="filtro-categoria">
-      <option value="">Todas as Categorias</option>
-      <option value="Geral">💬 Geral</option>
-      <option value="Dúvidas Técnicas">🚰 Dúvidas Técnicas</option>
-      <option value="Projetos">📂 Projetos</option>
-      <option value="Sugestões">✨ Sugestões</option>
-    </select>
-    <select id="filtro-popularidade">
-      <option value="recentes">🕓 Mais Recentes</option>
-      <option value="populares">🔥 Mais Populares</option>
-      <option value="sem-resposta">🔠 Sem Resposta</option>
-    </select>
-  </div>
-
-  <div class="ranking-conquistas-box">
-    <div class="ranking">
-      <h5>🏆 Top 3 Usuários</h5>
-      <ul>
-        {% for usuario in ranking[:3] %}
-          <li>{{ loop.index }}. {{ usuario.nome }} ({{ usuario.pontos }} pts)</li>
-        {% endfor %}
-      </ul>
-      <a href="/ranking" class="btn btn-sm btn-outline-primary mt-2">Ver Ranking Geral</a>
+  <!-- Estatísticas -->
+  <div class="row mb-5">
+    <div class="col-md-6 mb-3">
+      <div class="card stats-card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-trophy text-warning me-2"></i>Top 3 Usuários</h5>
+          <ul class="list-unstyled">
+            {% for u in ranking[:3] %}
+              <li class="mb-1">{{ loop.index }}. <strong>{{ u.nome }}</strong> — {{ u.pontos }} pts</li>
+            {% endfor %}
+          </ul>
+          <a href="{{ url_for('ranking') }}" class="btn btn-outline-primary btn-sm mt-2">Ver Ranking</a>
+        </div>
+      </div>
     </div>
-    <div class="conquistas">
-      <h5>🏇 Suas Conquistas</h5>
-      <ul>
-        {% for medalha in usuario_logado.medalhas %}
-          <li title="{{ medalha.descricao }}">{{ medalha.icone }} {{ medalha.nome }}</li>
-        {% endfor %}
-      </ul>
-      <a href="/conquistas" class="btn btn-sm btn-outline-success mt-2">Ver Todas</a>
+    <div class="col-md-6 mb-3">
+      <div class="card stats-card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-medal text-info me-2"></i>Suas Conquistas</h5>
+          <ul class="list-unstyled">
+            {% for m in usuario_logado.medalhas[:5] %}
+              <li class="mb-1" title="{{ m.descricao }}">{{ m.icone }} {{ m.nome }}</li>
+            {% endfor %}
+          </ul>
+          <a href="{{ url_for('conquistas') }}" class="btn btn-outline-success btn-sm mt-2">Ver Todas</a>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Lista de tópicos -->
   {% for topico in topicos %}
-  <div class="topic-card">
-    <h4>
-      <a href="{{ url_for('ver_topico', id=topico.id) }}">{{ topico.titulo }}</a>
-      {% if topico.curtidas >= 10 %}<span class="badge">🔥 Em Alta</span>{% endif %}
-    </h4>
-    <p>{{ topico.conteudo[:150] }}{% if topico.conteudo|length > 150 %}...{% endif %}</p>
-    {% if topico.resumo_ia %}<div class="resumo-ia">🧠 Resumo IA: {{ topico.resumo_ia }}</div>{% endif %}
-    <div class="topic-meta">
-      Criado por <strong>{{ topico.usuario.nome }}</strong>
-      {% if topico.usuario.pontos is defined %}(🎯 {{ topico.usuario.pontos }} pts){% endif %}
-      {% set medalhas = topico.usuario.medalhas %}
-      {% for medalha in medalhas %}
-        <span class="medalha-icone" title="{{ medalha.nome }}">{{ medalha.icone }}</span>
-      {% endfor %}
-      <br>
-      em {{ topico.data_criacao.strftime('%d/%m/%Y') }}
-      • {{ topico.respostas_count }} respostas
-      • {{ topico.curtidas }} curtidas
-      <span class="like-btn" onclick="curtirTopico({{ topico.id }})"><i class="fas fa-thumbs-up"></i></span>
+    <div class="card mb-3 topic-card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <a href="{{ url_for('ver_topico', id=topico.id) }}" class="h5 text-dark text-truncate">
+            {{ topico.titulo }}
+          </a>
+          {% if topico.curtidas >= 10 %}
+            <span class="badge badge-hot">🔥 Em Alta</span>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <span class="badge bg-secondary badge-cat me-1">{{ topico.categoria }}</span>
+        </div>
+        <p class="text-muted mb-2">
+          {{ topico.conteudo[:150] }}{% if topico.conteudo|length > 150 %}...{% endif %}
+        </p>
+        {% if topico.resumo_ia %}
+          <div class="alert alert-info py-2 small mb-3">
+            🧠 {{ topico.resumo_ia }}
+          </div>
+        {% endif %}
+        <div class="d-flex flex-wrap align-items-center small text-secondary">
+          <span class="me-3">Por <strong>{{ topico.usuario.nome }}</strong></span>
+          <span class="me-3">{{ topico.data_criacao.strftime('%d/%m/%Y') }}</span>
+          <span class="me-3">{{ topico.respostas_count }} respostas</span>
+          <i id="btn-like-{{ topico.id }}" class="fas fa-thumbs-up me-1 btn-like" onclick="curtirTopico({{ topico.id }})"></i>
+          <span id="likes-{{ topico.id }}" class="me-3">{{ topico.curtidas }}</span>
+          {% if usuario_id == topico.usuario.id %}
+            {% if (topico.data_criacao + timedelta(hours=24)) > datetime.utcnow() %}
+              <button class="btn btn-outline-primary btn-sm me-2"
+                      onclick="abrirModalEditarTopico({{ topico.id }}, '{{ topico.titulo|e }}', `{{ topico.conteudo|e }}`, '{{ topico.categoria }}')">
+                <i class="fas fa-edit"></i>
+              </button>
+            {% endif %}
+            <form method="POST" action="{{ url_for('excluir_topico', id=topico.id) }}"
+                  class="d-inline" onsubmit="return confirm('Tem certeza?');">
+              <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
     </div>
-    {% if usuario_id == topico.usuario.id %}
-    <div style="margin-top: 8px;">
-      {% if (topico.data_criacao + timedelta(hours=24)) > datetime.utcnow() %}
-        <button class="btn btn-sm btn-outline-primary me-2" onclick="abrirModalEditarTopico({{ topico.id }}, '{{ topico.titulo }}', `{{ topico.conteudo }}`, '{{ topico.categoria }}')">✏️ Editar</button>
-      {% endif %}
-      <form method="POST" action="{{ url_for('excluir_topico', id=topico.id) }}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este tópico?');">
-        <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Excluir</button>
-      </form>
-    </div>
-    {% endif %}
-  </div>
   {% endfor %}
+
 </div>
 
-<!-- MODAIS -->
-<div class="modal fade" id="modalNovaDiscussao" tabindex="-1" aria-labelledby="novaDiscussaoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <form class="modal-content" method="POST" action="/forum/nova">
+<!-- Modal: Nova Discussão -->
+<div class="modal fade" id="modalNovaDiscussao" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <form class="modal-content" method="POST" action="{{ url_for('criar_topico') }}">
       <div class="modal-header">
-        <h5 class="modal-title" id="novaDiscussaoLabel">➕ Criar Nova Discussão</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        <h5 class="modal-title">➕ Criar Nova Discussão</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body text-start">
+      <div class="modal-body">
         <div class="mb-3">
-          <label for="titulo" class="form-label">Título do Tópico</label>
-          <input type="text" class="form-control" id="titulo" name="titulo" required maxlength="150">
+          <label for="titulo" class="form-label">Título</label>
+          <input id="titulo" name="titulo" type="text" class="form-control" required maxlength="150">
         </div>
         <div class="mb-3">
           <label for="conteudo" class="form-label">Conteúdo</label>
-          <textarea class="form-control" id="conteudo" name="conteudo" rows="6" required></textarea>
+          <textarea id="conteudo" name="conteudo" class="form-control" rows="5" required></textarea>
         </div>
         <div class="mb-3">
           <label for="categoria" class="form-label">Categoria</label>
-          <select class="form-select" id="categoria" name="categoria" required>
-            <option value="">Selecione uma categoria</option>
-            <option value="Geral">💬 Geral</option>
-            <option value="Dúvidas Técnicas">🚰 Dúvidas Técnicas</option>
-            <option value="Projetos">📂 Projetos</option>
-            <option value="Sugestões">✨ Sugestões</option>
+          <select id="categoria" name="categoria" class="form-select" required>
+            <option value="Geral">Geral</option>
+            <option value="Dúvidas Técnicas">Dúvidas Técnicas</option>
+            <option value="Projetos">Projetos</option>
+            <option value="Sugestões">Sugestões</option>
           </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Criar Tópico</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" type="submit">Criar</button>
       </div>
     </form>
   </div>
 </div>
 
-<div class="modal fade" id="modalEditarTopico" tabindex="-1" aria-labelledby="modalEditarTopicoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <form class="modal-content" method="POST" id="form-editar-topico">
+<!-- Modal: Editar Tópico -->
+<div class="modal fade" id="modalEditarTopico" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <form id="form-editar-topico" class="modal-content" method="POST">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalEditarTopicoLabel">✏️ Editar Tópico</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        <h5 class="modal-title">✏️ Editar Tópico</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body text-start">
+      <div class="modal-body">
         <div class="mb-3">
           <label for="edit_titulo" class="form-label">Título</label>
-          <input type="text" class="form-control" id="edit_titulo" name="titulo" required maxlength="150">
+          <input id="edit_titulo" name="titulo" type="text" class="form-control" required maxlength="150">
         </div>
         <div class="mb-3">
           <label for="edit_conteudo" class="form-label">Conteúdo</label>
-          <textarea class="form-control" id="edit_conteudo" name="conteudo" rows="6" required></textarea>
+          <textarea id="edit_conteudo" name="conteudo" class="form-control" rows="5" required></textarea>
         </div>
         <div class="mb-3">
           <label for="edit_categoria" class="form-label">Categoria</label>
-          <select class="form-select" id="edit_categoria" name="categoria" required>
-            <option value="Geral">💬 Geral</option>
-            <option value="Dúvidas Técnicas">🚰 Dúvidas Técnicas</option>
-            <option value="Projetos">📂 Projetos</option>
-            <option value="Sugestões">✨ Sugestões</option>
+          <select id="edit_categoria" name="categoria" class="form-select" required>
+            <option value="Geral">Geral</option>
+            <option value="Dúvidas Técnicas">Dúvidas Técnicas</option>
+            <option value="Projetos">Projetos</option>
+            <option value="Sugestões">Sugestões</option>
           </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" type="submit">Salvar</button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-function abrirNovaDiscussao() {
-  const modal = new bootstrap.Modal(document.getElementById("modalNovaDiscussao"));
-  modal.show();
-}
-function abrirModalEditarTopico(id, titulo, conteudo, categoria) {
-  document.getElementById('form-editar-topico').action = `/forum/editar/${id}`;
-  document.getElementById('edit_titulo').value = titulo;
-  document.getElementById('edit_conteudo').value = conteudo;
-  document.getElementById('edit_categoria').value = categoria;
-  const modal = new bootstrap.Modal(document.getElementById("modalEditarTopico"));
-  modal.show();
-}
-function curtirTopico(topicoId) {
-  fetch(`/forum/curtir/${topicoId}`, { method: 'POST' })
-    .then(response => response.json())
-    .then(data => location.reload());
-}
+  function abrirNovaDiscussao() {
+    new bootstrap.Modal(document.getElementById('modalNovaDiscussao')).show();
+  }
+  function abrirModalEditarTopico(id, titulo, conteudo, categoria) {
+    const form = document.getElementById('form-editar-topico');
+    form.action = `/forum/editar/${id}`;
+    document.getElementById('edit_titulo').value = titulo;
+    document.getElementById('edit_conteudo').value = conteudo;
+    document.getElementById('edit_categoria').value = categoria;
+    new bootstrap.Modal(document.getElementById('modalEditarTopico')).show();
+  }
+  function curtirTopico(id) {
+    fetch(`/forum/curtir/${id}`, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById(`likes-${id}`).textContent = d.curtidas;
+        document.getElementById(`btn-like-${id}`).classList.toggle('liked', d.status === 'curtido');
+      });
+  }
+  function atualizarForum() {
+    const params = new URLSearchParams({
+      categoria: document.getElementById('filtro-categoria').value,
+      ordem: document.getElementById('filtro-ordem').value,
+      busca: document.getElementById('busca-topico').value
+    });
+    window.location = `{{ url_for('forum') }}?${params}`;
+  }
 </script>
 {% endblock %}

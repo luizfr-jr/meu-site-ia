@@ -1,180 +1,357 @@
 {% extends "base.html" %}
+
 {% block title %}Perfil de {{ usuario.nome }} - Meu Site IA{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<!-- Font Awesome & Emoji support -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/css/emojione.min.css" crossorigin="anonymous" />
+
 <style>
+  /* Container */
   .perfil-container {
     max-width: 1000px;
     margin: auto;
-    padding: 40px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    background: #fff; /* fundo claro fixo, dark mode gerenciado por base.html */
+    border-radius: 1rem;
+    box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.05);
   }
+
+  /* Header & Avatar */
+  }
+
+  /* Header & Avatar */
   .perfil-header {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 1rem;
     align-items: center;
-    margin-bottom: 30px;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    padding: 0.5rem;
+    z-index: 10;
+    transition: padding 0.3s;
   }
-  .perfil-header img {
-    width: 120px;
-    height: 120px;
+  .perfil-header.shrink { padding: 0.25rem; }
+  .avatar {
+    position: relative;
+    width: 5rem;
+    height: 5rem;
+    cursor: pointer;
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #007bff;
+    border: 0.2rem solid var(--primary);
   }
+  .avatar.premium img {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { box-shadow: 0 0 0.5rem var(--warning); }
+    to   { box-shadow: 0 0 1.5rem var(--warning); }
+  }
+
+  /* Info */
   .perfil-info h2 {
-    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
   }
-  .perfil-info p {
-    margin: 5px 0;
-    color: #555;
+  .badge-user { font-size: 0.9rem; margin-left: 0.5rem; }
+  .last-access { font-size: 0.8rem; color: var(--secondary); }
+  .perfil-bio { margin: 0.5rem 0; }
+  .social-icons a { margin-right: 0.5rem; font-size: 1.2rem; }
+
+  /* Button Seguir */
+  .btn-follow {
+    min-width: 8rem;
   }
-  .social-icons a {
-    margin-right: 10px;
-    color: #007bff;
-    font-size: 1.2rem;
+  .btn-follow:focus {
+    outline: 3px solid var(--success);
   }
-  .tabs {
-    margin-top: 30px;
+  .btn-follow:hover {
+    animation: pulse 0.8s;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+  /* Tabs */
+  .nav-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .nav-tabs .nav-link {
+    display: inline-flex;
+    align-items: center;
   }
   .nav-tabs .nav-link.active {
-    background-color: #007bff;
+    background-color: var(--primary);
     color: #fff;
   }
+  .tab-pane {
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .tab-pane.show { opacity: 1; }
+
+  /* Activity Items */
   .atividade-item {
-    margin-bottom: 10px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    cursor: pointer;
+    min-height: 48px;
+    background: var(--card);
+    transition: transform 0.2s, box-shadow 0.2s;
   }
-  #grafico-evolucao {
-    max-height: 300px;
+  .atividade-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
   }
+  .atividade-item.skeleton {
+    background: rgba(0,0,0,0.05);
+    color: transparent;
+  }
+
+  /* Hall of Fame */
+  .hall-fama {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: var(--bg);
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.05);
+  }
+
+  /* CTA Mobile */
+  .cta-mobile {
+    position: fixed;
+    bottom: 1rem;
+    width: 100%;
+    text-align: center;
+    display: none;
+  }
+  @media (max-width: 767px) { .cta-mobile { display: block; } }
 </style>
 
-<div class="perfil-container">
-  <div class="perfil-header">
-    <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static', filename='img/perfil_padrao.png') }}" alt="Foto de Perfil">
-    <div class="perfil-info">
-      <h2>{{ usuario.nome }}</h2>
-      <p>{{ usuario.biografia or 'Sem biografia definida.' }}</p>
+<div class="perfil-container" id="perfilContainer">
+  <!-- Header -->
+  <div class="perfil-header" id="perfilHeader">
+    <div class="avatar {{ 'premium' if usuario.premium else '' }}" tabindex="0" aria-label="Ver foto de {{ usuario.nome }}" data-bs-toggle="modal" data-bs-target="#modalFoto">
+      <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static','img/perfil_padrao.png') }}" alt="Foto de {{ usuario.nome }}">
+    </div>
+    <div class="perfil-info flex-grow-1">
+      <h2>{{ usuario.nome }}
+        {% if usuario.premium %}<i class="fas fa-crown" aria-hidden="true"></i><span class="visually-hidden">Premium</span><span class="badge bg-warning badge-user">Premium</span>{% endif %}
+        {% if usuario.tipo == 'professor' %}<i class="fas fa-chalkboard-teacher" aria-hidden="true"></i><span class="visually-hidden">Professor</span><span class="badge bg-info badge-user">Professor</span>{% else %}<i class="fas fa-user-graduate" aria-hidden="true"></i><span class="visually-hidden">Aluno</span><span class="badge bg-secondary badge-user">Aluno</span>{% endif %}
+      </h2>
+      {% if usuario.ultimo_login %}
+        <span class="last-access" data-ultimo-login="{{ usuario.ultimo_login.isoformat() }}"></span>
+      {% endif %}
+      <p class="perfil-bio emojione" tabindex="0">{{ usuario.biografia or 'Sem biografia definida.' }}</p>
       <div class="social-icons">
-        {% if usuario.linkedin %}<a href="{{ usuario.linkedin }}" target="_blank"><i class="fab fa-linkedin"></i></a>{% endif %}
-        {% if usuario.github %}<a href="{{ usuario.github }}" target="_blank"><i class="fab fa-github"></i></a>{% endif %}
-        {% if usuario.instagram %}<a href="{{ usuario.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}
+        {% if usuario.linkedin %}<a href="{{ usuario.linkedin }}" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin" aria-hidden="true"></i></a>{% endif %}
+        {% if usuario.github %}<a href="{{ usuario.github }}" target="_blank" aria-label="GitHub"><i class="fab fa-github" aria-hidden="true"></i></a>{% endif %}
+        {% if usuario.instagram %}<a href="{{ usuario.instagram }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>{% endif %}
       </div>
       {% if current_user.is_authenticated and current_user.id != usuario.id %}
-        <button id="seguir-btn" class="btn btn-sm">⭐</button>
+        <button id="seguir-btn" role="button" aria-pressed="false" class="btn btn-sm btn-follow mt-2" data-seguindo="{{ 'true' if current_user.esta_seguindo(usuario) else 'false' }}"></button>
       {% endif %}
     </div>
   </div>
 
-  <canvas id="grafico-evolucao"></canvas>
+  <div class="row mt-4">
+    <!-- Evolução -->
+    <div class="col-12 col-lg-8">
+      <canvas id="grafico-evolucao" aria-label="Gráfico de evolução de XP" role="img"></canvas>
+      <div id="evolucao-resumo" class="text-center mt-2"></div>
+    </div>
+    <!-- Side: Hall & Tabs -->
+    <div class="col-12 col-lg-4">
+      <!-- Hall da Fama -->
+      {% if top_contribuidores %}
+      <div class="hall-fama">
+        <h5>Hall da Fama</h5>
+        {% for u in top_contribuidores %}
+          <div class="d-flex align-items-center my-2">
+            <img src="{{ url_for('foto_de_perfil', filename=u.foto) if u.foto else url_for('static','img/perfil_padrao.png') }}" class="rounded-circle me-2" width="40" height="40" alt="{{ u.nome }}">
+            <div><small>{{ u.nome }}</small><br><span class="text-warning">{{ u.pontos }} XP</span></div>
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
 
-  <div class="tabs">
-    <ul class="nav nav-tabs" id="perfilTabs" role="tablist">
-      <li class="nav-item"><button class="nav-link active" id="topicos-tab" data-bs-toggle="tab" data-bs-target="#topicos" type="button" role="tab">Tópicos</button></li>
-      <li class="nav-item"><button class="nav-link" id="respostas-tab" data-bs-toggle="tab" data-bs-target="#respostas" type="button" role="tab">Respostas</button></li>
-      <li class="nav-item"><button class="nav-link" id="medalhas-tab" data-bs-toggle="tab" data-bs-target="#medalhas" type="button" role="tab">Medalhas</button></li>
-      <li class="nav-item"><button class="nav-link" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed" type="button" role="tab">Mini Feed</button></li>
-    </ul>
-    <div class="tab-content mt-3">
-      <div class="tab-pane fade show active" id="topicos" role="tabpanel">
-        {% for topico in topicos %}
-          <div class="atividade-item">
-            <a href="{{ url_for('ver_topico', id=topico.id) }}"><strong>{{ topico.titulo }}</strong></a>
-            <p class="text-muted">{{ topico.data_criacao.strftime('%d/%m/%Y') }}</p>
-          </div>
-        {% else %}<p class="text-muted">Nenhum tópico encontrado.</p>{% endfor %}
+      <!-- Tabs -->
+      <ul class="nav nav-tabs" id="perfilTabs" role="tablist">
+        {% for tab,label,count in [("topicos","Tópicos",topicos|length),("respostas","Respostas",respostas|length),("conquistas","Conquistas",medalhas|length),("seguidores","Seguidores",usuario.seguidores.count()),("seguindo","Seguindo",usuario.seguindo.count())] %}
+          <li class="nav-item" role="presentation">
+            <button class="nav-link{% if loop.first %} active{% endif %}" id="tab-{{ tab }}" data-bs-toggle="tab" data-bs-target="#pane-{{ tab }}" type="button" role="tab" aria-controls="pane-{{ tab }}" {% if loop.first %}aria-selected="true"{% else %}aria-selected="false"{% endif %}>
+              {{ label }} <span class="badge bg-secondary">{{ count }}</span>
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="tab-content mt-2">
+        {% for tab, items in [("topicos", topicos),("respostas", respostas),("conquistas", medalhas),("seguidores", usuario.seguidores.all()),("seguindo", usuario.seguindo.all())] %}
+        <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="pane-{{ tab }}" role="tabpanel" aria-labelledby="tab-{{ tab }}">
+          {% if items %}
+            {% for item in items %}
+              <div class="atividade-item" {% if tab in ["topicos","respostas","conquistas"] %}data-bs-toggle="modal" data-bs-target="#modal{{ tab|capitalize }}{{ item.id }}"{% endif %} {% if tab=="topicos" %}onclick="location.href='{{ url_for('ver_topico',id=item.id) }}'"{% endif %} tabindex="0">
+                {% if tab=="conquistas" %}<strong>{{ item.icone }} {{ item.nome }}</strong><small class="text-muted d-block">{{ item.descricao }}</small>
+                {% elif tab=="topicos" %}<strong>{{ item.titulo }}</strong>{% if item.curtidas>=10 %}<span class="badge bg-danger ms-1">🔥 Em Alta</span>{% endif %}<small class="text-muted d-block">{{ item.data_criacao.strftime('%d/%m/%Y') }}</small>
+                {% elif tab=="respostas" %}<p>{{ item.conteudo }}</p><small class="text-muted d-block">{{ item.criado_em.strftime('%d/%m/%Y') }}</small>
+                {% else %} <img src="{{ url_for('foto_de_perfil',filename=item.foto) if item.foto else url_for('static','img/perfil_padrao.png') }}" class="rounded-circle me-2" width="36" height="36" alt="{{ item.nome }}"> {{ item.nome }}
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted">Nenhum registro em {{ tab }}.</p>
+          {% endif %}
+        </div>
+        {% endfor %}
       </div>
-      <div class="tab-pane fade" id="respostas" role="tabpanel">
-        {% for resposta in respostas %}
-          <div class="atividade-item">
-            <p>{{ resposta.conteudo }}</p>
-            <small class="text-muted">{{ resposta.criado_em.strftime('%d/%m/%Y') }}</small>
-          </div>
-        {% else %}<p class="text-muted">Nenhuma resposta encontrada.</p>{% endfor %}
+    </div>
+  </div>
+
+  <!-- CTA Mobile -->
+  <div class="cta-mobile">
+    {% if current_user.is_authenticated and current_user.id!=usuario.id %}
+      <button id="seguir-mobile" class="btn btn-primary btn-lg w-75" data-seguindo="false" aria-label="Seguir usuário móvel"></button>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Scripts -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script defer>
+  document.addEventListener('DOMContentLoaded',()=>{
+    // Sticky header shrink
+    const header=document.getElementById('perfilHeader');
+    window.addEventListener('scroll',()=>header.classList.toggle('shrink',window.scrollY>100));
+    // Last access
+    const last=document.querySelector('.last-access'); if(last) last.textContent=moment(last.dataset.ultimoLogin).fromNow();
+    // Follow buttons
+    ['seguir-btn','seguir-mobile'].forEach(id=>{const b=document.getElementById(id);if(!b)return;let s=b.dataset.seguindo==='true';const u=()=>{b.textContent=s?'⭐ Seguindo':'➕ Seguir usuário';b.classList.toggle('btn-success',s);b.classList.toggle('btn-outline-primary',!s);b.setAttribute('aria-pressed',s);} ;u();b.addEventListener('click',async ()=>{try{const r=await fetch(`/seguir/{{ usuario.id }}`,{method:'POST'});const d=await r.json();s=d.seguindo;u();}catch(e){console.error(e)}})});
+    // Keyboard nav tabs
+    const tabs=Array.from(document.querySelectorAll('#perfilTabs [role="tab"]'));tabs.forEach((t,i)=>t.addEventListener('keydown',e=>{if(e.key==='ArrowRight')tabs[(i+1)%tabs.length].focus();if(e.key==='ArrowLeft')tabs[(i-1+tabs.length)%tabs.length].focus();}));
+    // Chart
+    const ctx=document.getElementById('grafico-evolucao').getContext('2d');fetch(`/api/evolucao_pontos/{{ usuario.id }}`).then(r=>r.json()).then(data=>{const g=ctx.createLinearGradient(0,0,0,300);g.addColorStop(0,getComputedStyle(document.documentElement).getPropertyValue('--primary'));g.addColorStop(1,getComputedStyle(document.documentElement).getPropertyValue('--success'));new Chart(ctx,{type:'line',data:{labels:data.labels,datasets:[{data:data.data,backgroundColor:g,borderColor:g,fill:true,tension:0.4}]},options:{responsive:true,animation:{duration:1000,easing:'easeOutQuart'},plugins:{tooltip:{callbacks:{title:i=>moment(i[0].label).format('DD/MM/YYYY'),label:c=>`🚀 ${c.parsed.y} XP`}},legend:{display:false}},scales:{y:{beginAtZero:true}}}});document.getElementById('evolucao-resumo').textContent=`🚀 Você evoluiu ${data.data.slice(-7).reduce((a,b)=>a+b,0)} XP essa semana!`;document.querySelectorAll('.atividade-item.skeleton').forEach(el=>el.classList.remove('skeleton'));});
+  });
+</script>
+
+<!-- Modais -->
+<!-- Modal Foto -->
+<div class="modal fade" id="modalFoto" tabindex="-1" aria-labelledby="modalFotoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalFotoLabel">Foto de {{ usuario.nome }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="tab-pane fade" id="medalhas" role="tabpanel">
-        {% for medalha in medalhas %}
-          <div class="atividade-item">
-            <strong>{{ medalha.icone }} {{ medalha.nome }}</strong>
-            <p class="text-muted">{{ medalha.descricao }}</p>
-          </div>
-        {% else %}<p class="text-muted">Nenhuma medalha conquistada.</p>{% endfor %}
-      </div>
-      <div class="tab-pane fade" id="feed" role="tabpanel">
-        {% for atividade in atividades %}
-          <div class="atividade-item">
-            <span>{{ atividade.descricao }}</span>
-            <small class="text-muted">({{ atividade.data }})</small>
-          </div>
-        {% else %}<p class="text-muted">Nenhuma atividade recente.</p>{% endfor %}
+      <div class="modal-body text-center">
+        <img src="{{ url_for('foto_de_perfil', filename=usuario.foto) if usuario.foto else url_for('static','img/perfil_padrao.png') }}" class="img-fluid rounded-circle" alt="Foto de {{ usuario.nome }}">
       </div>
     </div>
   </div>
 </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const botao = document.getElementById("seguir-btn");
-    if (!botao) return;
-    const usuarioId = {{ usuario.id }};
-    let seguindo = {{ 'true' if current_user.is_authenticated and current_user.esta_seguindo(usuario) else 'false' }};
+<!-- Modal Seguidores -->
+<div class="modal fade" id="modalSeguidores" tabindex="-1" aria-labelledby="modalSeguidoresLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSeguidoresLabel">Seguidores ({{ usuario.seguidores.count() }})</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {% for u in usuario.seguidores.all() %}
+          <div class="d-flex align-items-center mb-2">
+            <img src="{{ url_for('foto_de_perfil', filename=u.foto) if u.foto else url_for('static','img/perfil_padrao.png') }}" class="rounded-circle me-2" width="40" height="40" alt="{{ u.nome }}">
+            <a href="{{ url_for('perfil', id=u.id) }}">{{ u.nome }}</a>
+          </div>
+        {% else %}<p class="text-muted">Sem seguidores.</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
 
-    function atualizarTexto() {
-      botao.innerText = seguindo ? "⭐ Seguindo" : "⭐ Seguir";
-      botao.classList.toggle("btn-primary", !seguindo);
-      botao.classList.toggle("btn-outline-primary", seguindo);
-    }
+<!-- Modal Seguindo -->
+<div class="modal fade" id="modalSeguindo" tabindex="-1" aria-labelledby="modalSeguindoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSeguindoLabel">Seguindo ({{ usuario.seguindo.count() }})</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {% for u in usuario.seguindo.all() %}
+          <div class="d-flex align-items-center mb-2">
+            <img src="{{ url_for('foto_de_perfil', filename=u.foto) if u.foto else url_for('static','img/perfil_padrao.png') }}" class="rounded-circle me-2" width="40" height="40" alt="{{ u.nome }}">
+            <a href="{{ url_for('perfil', id=u.id) }}">{{ u.nome }}</a>
+          </div>
+        {% else %}<p class="text-muted">Não segue ninguém.</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
 
-    atualizarTexto();
+<!-- Modais de Conquistas -->
+{% for m in medalhas %}
+  <div class="modal fade" id="modalConquistas{{ m.id }}" tabindex="-1" aria-labelledby="modalConquistasLabel{{ m.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalConquistasLabel{{ m.id }}">{{ m.icone }} {{ m.nome }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>{{ m.descricao }}</p>
+          <p><small class="text-muted">Conquistada em {{ m.data_conquista.strftime('%d/%m/%Y') }}</small></p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
 
-    botao.addEventListener("click", () => {
-      fetch(`/seguir/${usuarioId}`, {
-        method: "POST"
-      })
-      .then(r => r.json())
-      .then(data => {
-        seguindo = data.seguindo;
-        atualizarTexto();
-      });
-    });
-  });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const ctx = document.getElementById('grafico-evolucao').getContext('2d');
-  fetch(`/api/evolucao_pontos/{{ usuario.id }}`)
-    .then(r => r.json())
-    .then(data => {
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: data.labels,
-          datasets: [{
-            label: 'Evolução de Pontos',
-            data: data.data,
-            fill: false,
-            borderColor: '#007bff',
-            tension: 0.1
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }
-      });
-    })
-    .catch(err => {
-      console.error("Erro ao carregar gráfico:", err);
-    });
-</script>
+<!-- Modal Perfil Rápido Seguidores -->
+{% for u in usuario.seguidores.all() %}
+  <div class="modal fade" id="modalPerfil{{ u.id }}" tabindex="-1" aria-labelledby="modalPerfilLabel{{ u.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="d-flex align-items-center">
+          <img src="{{ url_for('foto_de_perfil', filename=u.foto) if u.foto else url_for('static','img/perfil_padrao.png') }}" class="rounded-circle me-3" width="60" height="60" alt="{{ u.nome }}">
+          <div>
+            <h5><a href="{{ url_for('perfil', id=u.id) }}">{{ u.nome }}</a></h5>
+            <small class="text-muted">{{ u.tipo|capitalize }}</small>
+          </div>
+        </div>
+        <hr />
+        <p>{{ u.biografia or 'Sem biografia definida.' }}</p>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+<!-- Modal Perfil Rápido Seguindo -->
+{% for u in usuario.seguindo.all() %}
+  <div class="modal fade" id="modalPerfil{{ u.id }}-seguindo" tabindex="-1" aria-labelledby="modalPerfilLabel{{ u.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="d-flex align-items-center">
+          <img src="{{ url_for('foto_de_perfil', filename=u.foto) if u.foto else url_for('static','img/perfil_padrao.png') }}" class="rounded-circle me-3" width="60" height="60" alt="{{ u.nome }}">
+          <div>
+            <h5><a href="{{ url_for('perfil', id=u.id) }}">{{ u.nome }}</a></h5>
+            <small class="text-muted">{{ u.tipo|capitalize }}</small>
+          </div>
+        </div>
+        <hr />
+        <p>{{ u.biografia or 'Sem biografia definida.' }}</p>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
 {% endblock %}

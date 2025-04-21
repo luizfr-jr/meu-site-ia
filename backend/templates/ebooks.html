@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}📘 E-books Premium{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="text-center mb-4">📘 E-books Exclusivos para Usuários Premium</h2>
+
+  {% if arquivos %}
+    <ul class="list-group">
+      {% for nome in arquivos %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ nome }}
+          <a href="{{ url_for('baixar_ebook', nome=nome) }}" class="btn btn-success btn-sm">📥 Baixar</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-warning text-center mt-4">
+      Nenhum e-book disponível no momento.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
