@@ -4,9 +4,15 @@ Este projeto está configurado para funcionar tanto no **GitHub Pages** quanto n
 
 ## 🔗 Links de Deploy
 
-- **GitHub Pages**: `https://kallebyx.github.io/hubcientifico/` (repositório principal)
-- **Vercel**: `https://hubcientifico.vercel.app/` (deploy automático)
+### Repositório Principal (KallebyX)
+- **GitHub Pages**: `https://kallebyx.github.io/hubcientifico/`
+- **Vercel**: `https://hubcientifico.vercel.app/`
 - **Repositório**: `https://github.com/KallebyX/hubcientifico`
+
+### Repositório Original (luizfr-jr)
+- **GitHub Pages**: `https://luizfr-jr.github.io/meu-site-ia/`
+- **Vercel**: `https://meu-site-ia.vercel.app/`
+- **Repositório**: `https://github.com/luizfr-jr/meu-site-ia`
 
 ## ✅ Status Atual - RESOLVIDO
 
