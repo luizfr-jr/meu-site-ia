@@ -23,19 +23,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+    - name: Create dist directory
+      run: mkdir -p dist
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Build for GitHub Pages
-      run: npm run build
-      env:
-        GITHUB_PAGES: true
+    - name: Copy redirect file
+      run: cp public/index.html dist/index.html
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
