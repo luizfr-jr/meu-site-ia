@@ -12,9 +12,10 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     minify: false,
+    target: 'esnext',
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: () => 'everything.js',
       },
     },
   },
