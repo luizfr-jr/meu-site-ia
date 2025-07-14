@@ -7,65 +7,35 @@ Este projeto está configurado para funcionar tanto no **GitHub Pages** quanto n
 - **GitHub Pages**: `https://luizfr-jr.github.io/meu-site-ia/` (link público existente)
 - **Vercel**: `https://meu-site-ia.vercel.app/` (com funcionalidades de login)
 
-## ⚠️ Status Atual
+## ✅ Status Atual - RESOLVIDO
 
-**Problema Detectado**: O build do projeto está falhando devido a incompatibilidades entre Rollup e algumas dependências.
+**Problema Solucionado**: O build do projeto está funcionando perfeitamente após ajustes no Vite config.
 
-**Erro**: `Cannot add property 0, object is not extensible`
+**Solução**: Configuração otimizada com `treeshake: false` e `inlineDynamicImports: true`
 
-### Solução 1: Vercel ❌
-- **Status**: Também falhando (mesmo erro)
-- **Recursos**: Build não funciona
-- **Deploy**: Falha na compilação
+### ✅ Vercel - Funcionando
+- **Status**: Build funcionando perfeitamente
+- **Recursos**: Todas as funcionalidades disponíveis
+- **Deploy**: Automático com GitHub integration
 
-### Solução 2: GitHub Pages ⚠️
-- **Status**: Necessita deploy manual
-- **Recursos**: Pode funcionar com deploy manual
-- **Deploy**: Script de deploy manual criado
+### ✅ GitHub Pages - Funcionando
+- **Status**: Deploy automático funcionando
+- **Recursos**: Homepage + sistema de login
+- **Deploy**: GitHub Actions + build automático
 
-## 📋 Soluções Disponíveis
+## 📋 Comandos de Deploy
 
-### 🔧 Solução Imediata: Deploy Manual
-
-#### Script Automático
+### 🚀 Deploy Automático (Recomendado)
 ```bash
-# Execute o script de deploy manual
-./deploy-manual.sh
-```
+# Deploy completo para GitHub Pages
+npm run deploy:gh-pages
 
-#### Comandos Manuais
-```bash
-# Se o build funcionar
+# Build para GitHub Pages
+npm run build:gh-pages
+
+# Build normal
 npm run build
-npx gh-pages -d dist -b gh-pages
-
-# Se o build falhar, criar versão simplificada
-mkdir -p dist-manual
-cp index.html dist-manual/
-cp -r public/* dist-manual/
-npx gh-pages -d dist-manual -b gh-pages
 ```
-
-### 🔄 Soluções Alternativas
-
-#### Opção 1: Usar Outro Bundler
-```bash
-# Remover Vite e usar Create React App
-npx create-react-app meu-site-ia-new
-# Migrar código manualmente
-```
-
-#### Opção 2: Versão Estática
-```bash
-# Criar versão HTML/CSS/JS pura
-mkdir static-version
-# Implementar apenas homepage sem React
-```
-
-#### Opção 3: Outros Hosts
-- **Netlify**: Pode ter melhor compatibilidade
-- **GitHub Codespaces**: Para desenvolvimento
-- **Surge.sh**: Deploy simples
 
 ### 🛠️ Configuração Vercel
 
@@ -73,8 +43,8 @@ mkdir static-version
 ```env
 VITE_ADMIN_USER_1_EMAIL=kallebyevangelho03@gmail.com
 VITE_ADMIN_USER_1_PASSWORD=kk030904K.k
-VITE_ADMIN_USER_2_EMAIL=luizricardo@exemplo.com
-VITE_ADMIN_USER_2_PASSWORD=senhaSegura123
+VITE_ADMIN_USER_2_EMAIL=luizfjr@gmail.com
+VITE_ADMIN_USER_2_PASSWORD=luizAdmin@hub2025
 ```
 
 #### Configuração:
@@ -84,6 +54,35 @@ VITE_ADMIN_USER_2_PASSWORD=senhaSegura123
 4. Configure Base Directory: deixe em branco ou `/`
 5. Configure Build Command: `npm run build`
 6. Configure Output Directory: `dist`
+
+### 🔧 Configuração Técnica que Resolveu o Problema
+
+#### vite.config.ts
+```typescript
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      treeshake: false,
+      output: {
+        format: 'es',
+        inlineDynamicImports: true,
+      },
+    },
+  },
+  optimizeDeps: {
+    force: true,
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@heroui/react',
+      'framer-motion',
+      'lucide-react',
+    ],
+  },
+})
+```
 
 ## 🚀 Plano de Ação
 
