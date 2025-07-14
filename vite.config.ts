@@ -7,7 +7,7 @@ export default defineConfig({
   css: {
     postcss: './postcss.config.js',
   },
-  base: '/meu-site-ia/',
+  base: process.env.GITHUB_PAGES ? '/hubcientifico/' : '/',
   build: {
     outDir: 'dist',
     sourcemap: false,
