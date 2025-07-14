@@ -4,8 +4,9 @@ Este projeto está configurado para funcionar tanto no **GitHub Pages** quanto n
 
 ## 🔗 Links de Deploy
 
-- **GitHub Pages**: `https://luizfr-jr.github.io/meu-site-ia/` (link público existente)
-- **Vercel**: `https://meu-site-ia.vercel.app/` (com funcionalidades de login)
+- **GitHub Pages**: `https://kallebyx.github.io/hubcientifico/` (repositório principal)
+- **Vercel**: `https://hubcientifico.vercel.app/` (deploy automático)
+- **Repositório**: `https://github.com/KallebyX/hubcientifico`
 
 ## ✅ Status Atual - RESOLVIDO
 
