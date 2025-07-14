@@ -1,0 +1,10 @@
+plugins: []
+markdown: kramdown
+highlighter: rouge
+exclude:
+  - README.md
+  - package.json
+  - package-lock.json
+  - node_modules
+  - .git
+  - .github
