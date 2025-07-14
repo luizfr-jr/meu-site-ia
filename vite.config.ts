@@ -14,9 +14,22 @@ export default defineConfig({
     minify: false,
     target: 'esnext',
     rollupOptions: {
+      treeshake: false,
       output: {
-        manualChunks: () => 'everything.js',
+        format: 'es',
+        inlineDynamicImports: true,
       },
     },
+  },
+  optimizeDeps: {
+    force: true,
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@heroui/react',
+      'framer-motion',
+      'lucide-react',
+    ],
   },
 })
