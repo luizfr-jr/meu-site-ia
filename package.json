@@ -1,0 +1,48 @@
+{
+  "name": "meu-site-ia",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:gh-pages": "GITHUB_PAGES=true npm run build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "deploy:gh-pages": "npm run build:gh-pages && gh-pages -d dist"
+  },
+  "dependencies": {
+    "@heroui/react": "^2.7.11",
+    "@hookform/resolvers": "^5.1.1",
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/js-cookie": "^3.0.6",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.3",
+    "js-cookie": "^3.0.5",
+    "lucide-react": "^0.525.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.60.0",
+    "react-router-dom": "^6.28.1",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/node": "^24.0.13",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "gh-pages": "^6.3.0",
+    "globals": "^16.3.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.35.1",
+    "vite": "^5.4.10"
+  }
+}
