@@ -11,7 +11,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: false,
     target: 'esnext',
     rollupOptions: {
       treeshake: false,
