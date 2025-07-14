@@ -18,6 +18,7 @@ export default defineConfig({
       output: {
         format: 'es',
         inlineDynamicImports: true,
+        manualChunks: undefined,
       },
     },
   },
@@ -30,6 +31,13 @@ export default defineConfig({
       '@heroui/react',
       'framer-motion',
       'lucide-react',
+      'firebase/app',
+      'firebase/firestore',
     ],
   },
+  define: {
+    // Ensure environment variables are properly defined
+    'import.meta.env.VITE_FIREBASE_API_KEY': JSON.stringify(process.env.VITE_FIREBASE_API_KEY || 'demo-api-key'),
+    'import.meta.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(process.env.VITE_FIREBASE_PROJECT_ID || 'meu-site-ia-demo'),
+  }
 })

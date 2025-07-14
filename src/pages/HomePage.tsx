@@ -1,30 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Users, Zap, Star, Filter, Moon, Sun } from 'lucide-react';
+import { Search, Users, Zap, Star, Filter, Moon, Sun, Loader } from 'lucide-react';
 import IACard from '../components/IACard';
 import Footer from '../components/Footer';
-import { initialIAs } from '../data/ias';
+import { useAITools } from '../hooks/useAITools';
 import { useTheme } from '../hooks/useTheme';
-
-// Categorias disponíveis
-const categories = [
-  'Conversação',
-  'Geração de Imagens',
-  'Pesquisa Acadêmica',
-  'Produtividade',
-  'Tradução',
-  'Visualização',
-  'Busca',
-  'Programação',
-  'Apresentações',
-  'Criatividade'
-];
 
 const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
-  const ias = initialIAs;
+  const { tools: ias, loading, error } = useAITools();
+
+  // Dynamically get categories from loaded tools
+  const categories = useMemo(() => {
+    const uniqueCategories = [...new Set(ias.map(ia => ia.category))];
+    return uniqueCategories.sort();
+  }, [ias]);
 
   const filteredIas = useMemo(() => {
     return ias.filter((ia) => {
@@ -41,7 +33,7 @@ const HomePage: React.FC = () => {
 
   const stats = [
     { label: "Ferramentas", value: `${ias.length}+`, icon: Zap },
-    { label: "Categorias", value: "10", icon: Filter },
+    { label: "Categorias", value: `${categories.length}`, icon: Filter },
     { label: "Usuários", value: "5K+", icon: Users },
     { label: "Avaliação", value: "4.9", icon: Star },
   ];
@@ -227,8 +219,30 @@ const HomePage: React.FC = () => {
             )}
           </motion.div>
 
-          <AnimatePresence mode="wait">
-            {filteredIas.length > 0 ? (
+          {/* Error state */}
+          {error && (
+            <motion.div 
+              className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <p className="text-yellow-800 text-sm">{error}</p>
+            </motion.div>
+          )}
+
+          {/* Loading state */}
+          {loading ? (
+            <motion.div
+              className="flex justify-center items-center py-20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Loader className="w-8 h-8 animate-spin text-blue-500" />
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Carregando ferramentas...</span>
+            </motion.div>
+          ) : (
+            <AnimatePresence mode="wait">
+              {filteredIas.length > 0 ? (
               <motion.div
                 key="tools-grid"
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6"
@@ -281,6 +295,7 @@ const HomePage: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
         </div>
       </section>
 
