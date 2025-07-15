@@ -1,0 +1,116 @@
+/* Garante que o corpo ocupe toda a altura da tela */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ocupa 100% da altura da viewport */
+}
+
+/* Faz o container principal crescer para empurrar o footer para baixo */
+.container {
+    flex-grow: 1; /* Ocupa o espaço restante */
+}
+
+/* Estilo do footer (mantenha o anterior e adicione) */
+footer {
+    background: #007bff;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-top: auto; /* Força o footer para o final */
+}
+
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    width: 100%;
+}
+
+.linha-horizontal {
+    border-top: 2px solid #007bff;
+    margin: 20px auto;
+    width: 80%;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.3s; /* Adicione isto para o hover funcionar */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.card p {
+    margin: 15px 0;
+    flex-grow: 1;
+}
+
+/* Botão (AGORA FUNCIONANDO!) */
+.botao {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    margin: 15px 0;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+}
+
+.botao:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+footer {
+    background: #007bff;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-top: 50px; /* Espaço acima do footer */
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.social-icons {
+    margin: 15px 0; /* Espaço acima e abaixo dos ícones */
+}
+
+.social-icons a {
+    color: white;
+    font-size: 24px; /* Tamanho dos ícones */
+    margin: 0 10px; /* Espaço entre os ícones */
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #ffd700; /* Cor ao passar o mouse (opcional) */
+}
